@@ -1,10 +1,7 @@
 import { Router } from "express";
-const routes = Router();
 import * as UserController from "../controllers/users";
-import { verify } from "../services/auth";
+const routes = Router();
 
-routes.post("/signup", UserController.signUp);
-
-routes.post("/login", UserController.login);
+routes.get("/", UserController.test);
 
 export default routes;
