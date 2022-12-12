@@ -1,16 +1,20 @@
-import * as UserModel from "../models/users";
+import RedisClient from "../config/redisClient";
 
 export async function verify(req, res, next) {
   try {
-    var token = req.headers["x-access-token"] || req.body["x-access-token"];
+    const token = req.headers.authorization.split(" ")[1];
     if (token) {
-      console.log(`Verifying token ${token}...`);
-      let user = await UserModel.findByToken(token);
-      console.log(
-        `User found : ${user.name}. [${user._id}] email: ${user.email} Auth success`
-      );
-      res.locals.user = user;
-      return await next();
+      let isExist = await RedisClient.hExists("users", token);
+      if (isExist) {
+        console.log(`Verifying token ${token}...`);
+        let isUser = await RedisClient.hGet("users", token);
+        console.log(`User found : email: ${isUser} Auth success`);
+        res.locals.user = isUser;
+        return await next();
+      } else {
+        console.log("Invalid Token");
+        return res.unauthorizedUser();
+      }
     } else {
       console.log("Access Token missing");
       return res.unauthorizedUser();

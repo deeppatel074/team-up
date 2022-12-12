@@ -1,4 +1,5 @@
 import admin from "../config/firebase-config";
+import RedisClient from "../config/redisClient";
 import * as UserModels from "../models/users";
 import mongoCollections from "../config/mongoCollections";
 const users = mongoCollections.users;
@@ -14,20 +15,20 @@ export async function signUp(req, res) {
       const exisiting_user = await userCollection.findOne({ email: email });
       if (exisiting_user) {
         const updateToken = await UserModels.updateAuthToken(token, email);
-        // console.log(updateToken);
+        // update token in redis
+        await RedisClient.hSet("users", token, email);
         return res.success({
           updateToken,
         });
       } else {
         try {
-          // console.log(uid);
           let userData = await admin.auth().getUser(uid);
-          // console.log(userData);
           let signinDataStore = await UserModels.signinData(
             token,
             userData.email
           );
-          // console.log(signinDataStore);
+          //add token in redis
+          await RedisClient.hSet("users", token, email);
           return res.success({
             signinDataStore,
           });
@@ -52,7 +53,8 @@ export async function login(req, res) {
       const exisiting_user = await userCollection.findOne({ email: email });
       if (exisiting_user) {
         const updateToken = await UserModels.updateAuthToken(token, email);
-        console.log(updateToken);
+        // update token in redis
+        await RedisClient.hSet("users", token, email);
         return res.success({
           updateToken,
         });
@@ -64,6 +66,8 @@ export async function login(req, res) {
             token,
             userData.email
           );
+          //add token in redis
+          await RedisClient.hSet("users", token, email);
           return res.success({
             signinDataStore,
           });
@@ -72,6 +76,18 @@ export async function login(req, res) {
         }
       }
     }
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function logout(req, res) {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    await RedisClient.hDel("users", token);
+    return res.success({
+      logout: true,
+    });
   } catch (e) {
     return res.error(500, e);
   }

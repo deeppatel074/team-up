@@ -7,4 +7,6 @@ routes.post("/signup", UserController.signUp);
 
 routes.post("/login", UserController.login);
 
+routes.post("/logout", verify, UserController.logout);
+
 export default routes;
