@@ -1,8 +1,7 @@
 import admin from "../config/firebase-config";
 import RedisClient from "../config/redisClient";
 import * as UserModels from "../models/users";
-import mongoCollections from "../config/mongoCollections";
-const users = mongoCollections.users;
+import * as S3 from "../services/s3";
 
 export async function signUp(req, res) {
   const token = req.headers.authorization.split(" ")[1];
@@ -11,8 +10,8 @@ export async function signUp(req, res) {
     if (decodedToken) {
       let uid = decodedToken.uid;
       let email = decodedToken.email;
-      const userCollection = await users();
-      const exisiting_user = await userCollection.findOne({ email: email });
+
+      const exisiting_user = await UserModels.findByEmail(email);
       if (exisiting_user) {
         const updateToken = await UserModels.updateAuthToken(token, email);
         // update token in redis
@@ -49,8 +48,7 @@ export async function login(req, res) {
     if (decodedToken) {
       let uid = decodedToken.uid;
       let email = decodedToken.email;
-      const userCollection = await users();
-      const exisiting_user = await userCollection.findOne({ email: email });
+      const exisiting_user = await UserModels.findByEmail(email);
       if (exisiting_user) {
         const updateToken = await UserModels.updateAuthToken(token, email);
         // update token in redis
@@ -88,6 +86,21 @@ export async function logout(req, res) {
     return res.success({
       logout: true,
     });
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function completeProfile(req, res) {
+  try {
+    let data = await S3.uploadProfilePic(req.file, res.locals._id);
+    let isUpdated = await UserModels.completeProfile(
+      res.locals._id,
+      req.body.firstName,
+      req.body.lastName,
+      data.Location
+    );
+    return res.success(isUpdated);
   } catch (e) {
     return res.error(500, e);
   }
