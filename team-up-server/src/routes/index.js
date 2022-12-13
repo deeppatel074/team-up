@@ -1,9 +1,11 @@
 import { Router } from "express";
 import UserRoutes from "./users";
+import WorkspaceRoutes from "./workspace"
 
 const routes = new Router();
 
 routes.use("/users", UserRoutes);
+routes.use("/workspace", WorkspaceRoutes)
 
 routes.all("*", (req, res, next) =>
   res.status(404).send({

@@ -54,3 +54,13 @@ export async function validateProfileBody(req, res, next) {
     return res.error(400, e);
   }
 }
+
+
+export async function validateWorkSpaceName(req, res, next) {
+  try {
+    req.body.name = checkString(req.body.name, "Workspace Name");
+    return await next();
+  } catch (e) {
+    return res.error(400, e);
+  }
+}
