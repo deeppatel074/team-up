@@ -1,7 +1,7 @@
 import admin from "../config/firebase-config";
+import RedisClient from "../config/redisClient";
 import * as UserModels from "../models/users";
-import mongoCollections from "../config/mongoCollections";
-const users = mongoCollections.users;
+import * as S3 from "../services/s3";
 
 export async function signUp(req, res) {
   const token = req.headers.authorization.split(" ")[1];
@@ -10,24 +10,24 @@ export async function signUp(req, res) {
     if (decodedToken) {
       let uid = decodedToken.uid;
       let email = decodedToken.email;
-      const userCollection = await users();
-      const exisiting_user = await userCollection.findOne({ email: email });
+
+      const exisiting_user = await UserModels.findByEmail(email);
       if (exisiting_user) {
         const updateToken = await UserModels.updateAuthToken(token, email);
-        // console.log(updateToken);
+        // update token in redis
+        await RedisClient.hSet("users", token, email);
         return res.success({
           updateToken,
         });
       } else {
         try {
-          // console.log(uid);
           let userData = await admin.auth().getUser(uid);
-          // console.log(userData);
           let signinDataStore = await UserModels.signinData(
             token,
             userData.email
           );
-          // console.log(signinDataStore);
+          //add token in redis
+          await RedisClient.hSet("users", token, email);
           return res.success({
             signinDataStore,
           });
@@ -48,11 +48,11 @@ export async function login(req, res) {
     if (decodedToken) {
       let uid = decodedToken.uid;
       let email = decodedToken.email;
-      const userCollection = await users();
-      const exisiting_user = await userCollection.findOne({ email: email });
+      const exisiting_user = await UserModels.findByEmail(email);
       if (exisiting_user) {
         const updateToken = await UserModels.updateAuthToken(token, email);
-        console.log(updateToken);
+        // update token in redis
+        await RedisClient.hSet("users", token, email);
         return res.success({
           updateToken,
         });
@@ -64,6 +64,8 @@ export async function login(req, res) {
             token,
             userData.email
           );
+          //add token in redis
+          await RedisClient.hSet("users", token, email);
           return res.success({
             signinDataStore,
           });
@@ -72,6 +74,33 @@ export async function login(req, res) {
         }
       }
     }
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function logout(req, res) {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    await RedisClient.hDel("users", token);
+    return res.success({
+      logout: true,
+    });
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function completeProfile(req, res) {
+  try {
+    let data = await S3.uploadProfilePic(req.file, res.locals._id);
+    let isUpdated = await UserModels.completeProfile(
+      res.locals._id,
+      req.body.firstName,
+      req.body.lastName,
+      data.Location
+    );
+    return res.success(isUpdated);
   } catch (e) {
     return res.error(500, e);
   }

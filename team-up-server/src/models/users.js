@@ -1,4 +1,5 @@
 import mongoCollections from "../config/mongoCollections";
+import constants from "../config/constants";
 const users = mongoCollections.users;
 
 export async function signinData(authToken, email) {
@@ -6,6 +7,11 @@ export async function signinData(authToken, email) {
   let newUser = {
     authToken: authToken,
     email: email,
+    firstName: undefined,
+    lastName: undefined,
+    profileUrl: undefined,
+    createdDate: new Date(),
+    status: constants.status.user.INACTIVE,
   };
 
   const newInsertInformation = await userCollection.insertOne(newUser);
@@ -25,6 +31,35 @@ export async function updateAuthToken(authToken, email) {
     { _id: user._id },
     {
       $set: { authToken: authToken },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
+  };
+}
+
+export async function findByEmail(email) {
+  const userCollection = await users();
+  const user = await userCollection.findOne({ email: email });
+  if (!user) {
+    throw `User not found`;
+  }
+  return user;
+}
+
+export async function completeProfile(_id, firstName, lastName, profileUrl) {
+  const userCollection = await users();
+  const updateInfo = await userCollection.updateOne(
+    { _id },
+    {
+      $set: {
+        firstName,
+        lastName,
+        profileUrl,
+        status: constants.status.user.ACTIVE,
+      },
     }
   );
   if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
