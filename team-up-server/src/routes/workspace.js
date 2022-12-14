@@ -5,13 +5,15 @@ import { verify } from "../services/auth";
 import { validateWorkSpaceName } from "../services/validation";
 // import upload from "../config/multer";
 
+routes.post(
+  "/",
+  verify,
+  validateWorkSpaceName,
+  WorkspaceController.createWorkspace
+);
 
-routes.post("/workspace", verify, validateWorkSpaceName, WorkspaceController.createWorkspace);
+routes.post("/:id/invite", verify, WorkspaceController.sendInvite);
 
-routes.get("/workspaces", verify, WorkspaceController.getWorkspaceById);
-
-
-
-
+routes.get("/invite/:userId/:token", WorkspaceController.verifyInvite);
 
 export default routes;
