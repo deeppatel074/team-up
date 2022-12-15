@@ -18,4 +18,6 @@ routes.post(
   validateProfileBody,
   UserController.completeProfile
 );
+
+routes.get("/:id/workspace", verify, UserController.getAllWorkspaceByUserId);
 export default routes;
