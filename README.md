@@ -1,4 +1,4 @@
-# TEAM UP
+# TEAM UP.
 ## Project Description: 
 In this project, we are going to develop an all-in-one workspace management application that will be able to perform the following functions:
 1. Invite users to the workspace to create tasks. Users can create a task and invite other users to the task. The users can also set deadlines for the tasks. Whenever a task is created or updated, all their team members would be notified via email. The team can thus work on these tasks and accomplish their target. Once the entire task is completed, the user who created the task gets notified via email.
