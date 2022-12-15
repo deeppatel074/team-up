@@ -45,6 +45,14 @@ export function firstNameValidation(name, str) {
     return name;
   }
 }
+export function validateDate(date) {
+  date = new Date(date).toISOString();
+  let today = new Date().toISOString();
+  if (date < today) {
+    throw `Event can't be held before the current date `;
+  }
+  return date;
+}
 export async function validateProfileBody(req, res, next) {
   try {
     req.body.firstName = firstNameValidation(req.body.firstName, "first name");
@@ -55,10 +63,21 @@ export async function validateProfileBody(req, res, next) {
   }
 }
 
-
 export async function validateWorkSpaceName(req, res, next) {
   try {
     req.body.name = checkString(req.body.name, "Workspace Name");
+    return await next();
+  } catch (e) {
+    return res.error(400, e);
+  }
+}
+
+export async function validateTaskBody(req, res, next) {
+  try {
+    req.body.title = checkString(req.body.title, "Title");
+    req.body.description = checkString(req.body.description, "Description");
+    req.body.startDate = validateDate(req.body.startDate);
+    req.body.endDate = validateDate(req.body.endDate);
     return await next();
   } catch (e) {
     return res.error(400, e);

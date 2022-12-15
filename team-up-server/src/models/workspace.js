@@ -97,3 +97,42 @@ export async function verifyInvite(userId, token) {
     throw "Update failed";
   return { verified: true };
 }
+
+export async function getAllWorkspaceByUserId(userId) {
+  const WorkspaceCollection = await workspace();
+  const workspaceFound = await WorkspaceCollection.find({
+    $or: [{ createdBy: ObjectId(userId) }, { "members.id": ObjectId(userId) }],
+  })
+    .sort({ createdDate: -1 })
+    .toArray();
+  return workspaceFound;
+}
+
+export async function deleteWorkspaceById(id) {
+  const WorkspaceCollection = await workspace();
+  let deleteData = await WorkspaceCollection.deleteOne({
+    _id: ObjectId(id),
+  });
+  if (!deleteData.acknowledged && !deleteData.deleteCount)
+    throw "Update failed";
+  return {
+    deleted: true,
+  };
+}
+
+export async function createTask(id, task) {
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id) },
+    {
+      $push: {
+        tasks: task,
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    added: true,
+  };
+}
