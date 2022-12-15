@@ -3,6 +3,10 @@ const STATUS = {
     ACTIVE: 1,
     INACTIVE: 2,
   },
+  task: {
+    COMPLETED: 1,
+    INCOMPLETE: 2,
+  },
 };
 
 const defaultConfig = {

@@ -2,6 +2,7 @@ import admin from "../config/firebase-config";
 import RedisClient from "../config/redisClient";
 import * as UserModels from "../models/users";
 import * as S3 from "../services/s3";
+import * as workSpaceModels from "../models/workspace";
 
 export async function signUp(req, res) {
   const token = req.headers.authorization.split(" ")[1];
@@ -101,6 +102,19 @@ export async function completeProfile(req, res) {
       data.Location
     );
     return res.success(isUpdated);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function getAllWorkspaceByUserId(req, res) {
+  try {
+    let id = req.params.id;
+    if (id.toString() !== res.locals._id.toString()) {
+      return res.accessDenied();
+    }
+    let allWorkspace = await workSpaceModels.getAllWorkspaceByUserId(id);
+    return res.success(allWorkspace);
   } catch (e) {
     return res.error(500, e);
   }
