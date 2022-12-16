@@ -1,5 +1,6 @@
 import '../App.css';
 import axios from 'axios';
+import firebase from 'firebase/compat/app';
 
 function Workspaces() {
     return (
