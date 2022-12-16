@@ -15,17 +15,41 @@ routes.post(
   WorkspaceController.createWorkspace
 );
 routes.post(
-  "/create/task/:id/:userId",
+  "/task/:id",
   verify,
   validateTaskBody,
   WorkspaceController.createTask
 );
+
+//Update Task
+routes.put(
+  "/task/:id/:taskId",
+  verify,
+  validateTaskBody,
+  WorkspaceController.updateTask
+);
+
+//get task byid
+routes.get("/task/:id/:taskId", verify, WorkspaceController.getTaskById);
+
+// Mark Task as Complete
+routes.patch("/task/:id/:taskId", verify, WorkspaceController.markTask);
+
+// Delete Task
+routes.delete("/task/:id/:taskId", verify, WorkspaceController.deleteTask);
 
 routes.post("/:id/invite", verify, WorkspaceController.sendInvite);
 
 routes.get("/invite/:userId/:token", WorkspaceController.verifyInvite);
 
 routes.get("/:id", verify, WorkspaceController.getWorkspaceById);
+
+routes.put(
+  "/:id",
+  verify,
+  validateWorkSpaceName,
+  WorkspaceController.changeWorkSpaceName
+);
 
 routes.delete("/:id", verify, WorkspaceController.deleteWorkspace);
 
