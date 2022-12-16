@@ -18,7 +18,7 @@ export async function signinData(authToken, email) {
   const newInsertInformation = await userCollection.insertOne(newUser);
   if (newInsertInformation.insertedCount === 0) throw "Insert failed!";
   return {
-    data_inserted: true,
+    id: newInsertInformation.insertedId.toString(),
   };
 }
 
@@ -36,9 +36,7 @@ export async function updateAuthToken(authToken, email) {
   );
   if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
     throw "Update failed";
-  return {
-    updated: true,
-  };
+  return user._id;
 }
 
 export async function findByEmail(email) {

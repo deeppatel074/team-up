@@ -18,7 +18,7 @@ export async function signUp(req, res) {
         // update token in redis
         await RedisClient.hSet("users", token, email);
         return res.success({
-          updateToken,
+          id: updateToken.toString(),
         });
       } else {
         try {
@@ -55,7 +55,7 @@ export async function login(req, res) {
         // update token in redis
         await RedisClient.hSet("users", token, email);
         return res.success({
-          updateToken,
+          id: updateToken.toString(),
         });
       } else {
         try {
