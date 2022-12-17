@@ -7,6 +7,7 @@ import {
   doPasswordReset,
 } from '../firebase/FirebaseFunctions';
 import axios from "axios";
+import Cookies from 'js-cookie';
 import firebase from "firebase/compat/app"
 
 function SignIn() {
@@ -25,7 +26,8 @@ function SignIn() {
           // "Accept":"application/json"
         },
       }).then((response) => {
-        console.log(response)
+        Cookies.set("user", response.data.id);
+        console.log(response);
       }).catch((error) => {
         console.log(error);
       })
@@ -49,7 +51,6 @@ function SignIn() {
 
 
   if (currentUser) {
-    console.log(currentUser);
     return <Navigate to='/home' />;
   }
   return (
