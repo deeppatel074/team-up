@@ -1,4 +1,5 @@
 import firebase from 'firebase/compat/app';
+import Cookies from 'js-cookie';
 
 async function doCreateUserWithEmailAndPassword(email, password) {
   await firebase.auth().createUserWithEmailAndPassword(email, password);
@@ -39,6 +40,7 @@ async function doPasswordUpdate(password) {
 
 async function doSignOut() {
   await firebase.auth().signOut();
+  Cookies.remove("user");
 }
 
 export {

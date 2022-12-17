@@ -2,6 +2,7 @@ import React from 'react';
 import { doSocialSignIn } from '../firebase/FirebaseFunctions';
 import axios from 'axios'
 import firebase from "firebase/compat/app"
+import Cookies from 'js-cookie';
 
 const SocialSignIn = () => {
   const socialSignOn = async (provider) => {
@@ -9,7 +10,7 @@ const SocialSignIn = () => {
       await doSocialSignIn(provider);
       let idToken = await firebase.auth().currentUser.getIdToken();
       try {
-          
+
         axios.post("http://localhost:4000/users/login", null, {
           headers: {
             // "Content-Type": "application/json",
@@ -17,13 +18,14 @@ const SocialSignIn = () => {
             // "Accept":"application/json"
           },
         }).then((response) => {
-          console.log(response)
+          Cookies.set("user", response.data.id);
+          console.log(response.data);
         }).catch((error) => {
           console.log(error);
         })
-  } catch (e) {
-    console.log(e);
-  }
+      } catch (e) {
+        console.log(e);
+      }
     } catch (error) {
       alert(error);
     }

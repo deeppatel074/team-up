@@ -33,6 +33,9 @@ function App() {
           <Route path="/workspaces" element={<PrivateRoute />}>
             <Route path="/workspaces" element={<Workspaces />} />
           </Route>
+          <Route path="/workspace/:id" element={<PrivateRoute />}>
+            <Route path="/workspace/:id" element={<Workspace />} />
+          </Route>
           <Route path="/createworkspace" element={<PrivateRoute />}>
             <Route path="/createworkspace" element={<CreateWorkspace />} />
           </Route>

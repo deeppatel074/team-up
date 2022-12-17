@@ -9,6 +9,7 @@ import {
 import axios from "axios";
 import firebase from "firebase/compat/app";
 import Card from "react-bootstrap/Card";
+import Cookies from "js-cookie";
 
 function SignIn() {
   const { currentUser } = useContext(AuthContext);
@@ -28,6 +29,7 @@ function SignIn() {
           },
         })
         .then((response) => {
+          Cookies.set("user", response.data.id);
           console.log(response);
         })
         .catch((error) => {
@@ -52,7 +54,6 @@ function SignIn() {
   };
 
   if (currentUser) {
-    console.log(currentUser);
     return <Navigate to="/home" />;
   }
   return (
