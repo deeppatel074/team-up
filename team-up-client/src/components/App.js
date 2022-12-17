@@ -11,6 +11,10 @@ import Workspace from "./Workspace";
 import CreateWorkspace from "./CreateWorkspace";
 import { AuthProvider } from "../firebase/Auth";
 import PrivateRoute from "./PrivateRoute";
+import Tasks from "./Tasks";
+import Meetings from "./Meetings";
+import Files from "./Files";
+import Settings from "./Settings";
 
 function App() {
   return (
@@ -31,6 +35,18 @@ function App() {
           </Route>
           <Route path="/workspaces/create" element={<PrivateRoute />}>
             <Route path="/workspaces/create" element={<CreateWorkspace />} />
+          </Route>
+          <Route path="/workspaces/:id/tasks" element={<PrivateRoute />}>
+            <Route path="/workspaces/:id/tasks" element={<Tasks />} />
+          </Route>
+          <Route path="/workspaces/:id/files" element={<PrivateRoute />}>
+            <Route path="/workspaces/:id/files" element={<Files />} />
+          </Route>
+          <Route path="/workspaces/:id/meetings" element={<PrivateRoute />}>
+            <Route path="/workspaces/:id/meetings" element={<Meetings />} />
+          </Route>
+          <Route path="/workspaces/:id/setting" element={<PrivateRoute />}>
+            <Route path="/workspaces/:id/setting" element={<Settings />} />
           </Route>
           <Route path="/login" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
