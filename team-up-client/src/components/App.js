@@ -3,7 +3,6 @@ import "../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Account from "./Account";
-import Home from "./Home";
 import Navigation from "./Navigation";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
@@ -21,9 +20,6 @@ function App() {
           <Navigation />
         </div>
         <Routes>
-          <Route path="/home" element={<PrivateRoute />}>
-            <Route path="/home" element={<Home />} />
-          </Route>
           <Route path="/account" element={<PrivateRoute />}>
             <Route path="/account" element={<Account />} />
           </Route>
@@ -33,8 +29,8 @@ function App() {
           <Route path="/workspace/:id" element={<PrivateRoute />}>
             <Route path="/workspace/:id" element={<Workspace />} />
           </Route>
-          <Route path="/createworkspace" element={<PrivateRoute />}>
-            <Route path="/createworkspace" element={<CreateWorkspace />} />
+          <Route path="/workspaces/create" element={<PrivateRoute />}>
+            <Route path="/workspaces/create" element={<CreateWorkspace />} />
           </Route>
           <Route path="/login" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />

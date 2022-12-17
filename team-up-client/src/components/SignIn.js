@@ -68,7 +68,7 @@ function SignIn() {
   };
 
   if (currentUser) {
-    return <Navigate to="/home" />;
+    return <Navigate to="/workspaces" />;
   }
   return (
     <div className="d-flex justify-content-center mt-4">
