@@ -29,14 +29,12 @@ const Navigation = () => {
   let login = createNav("Log In", "/login");
   let account = null;
   let workspaces = null;
-  let createWorkspace = null;
   let signOut = null;
   if (currentUser) {
     signup = null;
     login = null;
     account = createNav("Account", "/account");
     workspaces = createNav("Workspaces", "/workspaces");
-    createWorkspace = createNav("Create Workspace", "/createworkspace");
     signOut = createSignOut();
   }
   return (
@@ -48,10 +46,9 @@ const Navigation = () => {
           <Nav className="me-auto">
             {signup}
             {login}
-            {workspaces}
-            {createWorkspace}
           </Nav>
           <Nav>
+            {workspaces}
             {account}
             {signOut}
           </Nav>
