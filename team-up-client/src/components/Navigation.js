@@ -1,30 +1,32 @@
-import React, { useContext } from 'react';
-import { NavLink } from 'react-router-dom';
-import { AuthContext } from '../firebase/Auth';
-import { doSignOut } from '../firebase/FirebaseFunctions';
-import '../App.css';
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import { AuthContext } from "../firebase/Auth";
+import { doSignOut } from "../firebase/FirebaseFunctions";
+import "../App.css";
+import Container from "react-bootstrap/Container";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
 
 const createSignOut = () => {
   return (
-    <li>
-      <NavLink to='/' onClick={doSignOut}> Sign Out</NavLink>
-    </li>
+    <Link className="nav-link link" to="/login" onClick={doSignOut}>
+      Sign Out
+    </Link>
   );
-}
+};
 
 const createNav = (Name, dest) => {
   return (
-    <li>
-      <NavLink to={dest}>{Name}</NavLink>
-    </li>
-  )
-}
+    <Link className="nav-link link" to={dest}>
+      {Name}
+    </Link>
+  );
+};
 
 const Navigation = () => {
   const { currentUser } = useContext(AuthContext);
-  let landing = createNav("Landing", "/");
-  let signup = createNav("Sign Up", "/users/signup");
-  let login = createNav("Log In", "/users/login");
+  let signup = createNav("Sign Up", "/signup");
+  let login = createNav("Log In", "/login");
   let account = null;
   let workspaces = null;
   let createWorkspace = null;
@@ -38,17 +40,24 @@ const Navigation = () => {
     signOut = createSignOut();
   }
   return (
-    <nav className='navigation'>
-      <ul>
-        {landing}
-        {signup}
-        {login}
-        {account}
-        {workspaces}
-        {createWorkspace}
-        {signOut}
-      </ul>
-    </nav>
+    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+      <Container>
+        <Navbar.Brand> Team Up</Navbar.Brand>
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Collapse id="responsive-navbar-nav">
+          <Nav className="me-auto">
+            {signup}
+            {login}
+            {workspaces}
+            {createWorkspace}
+          </Nav>
+          <Nav>
+            {account}
+            {signOut}
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   );
 };
 

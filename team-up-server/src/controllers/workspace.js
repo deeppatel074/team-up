@@ -109,10 +109,7 @@ export async function getWorkspaceById(req, res) {
 export async function createTask(req, res) {
   try {
     let id = req.params.id;
-    let userId = req.params.userId;
-    if (userId.toString() !== res.locals._id.toString()) {
-      return res.accessDenied();
-    }
+    let userId = res.locals._id.toString();
     let workspace = await workSpaceModels.getWorkspaceById(id);
     if (!workspace) {
       throw "workspace not found by this id";
@@ -125,6 +122,7 @@ export async function createTask(req, res) {
     }
     let body = req.body;
     let taskToInsert = {
+      _id: new ObjectId(),
       title: body.title,
       description: body.description,
       startDate: body.startDate,
@@ -133,6 +131,8 @@ export async function createTask(req, res) {
       status: constants.status.task.INCOMPLETE,
       createdBy: ObjectId(userId),
       createdDate: new Date(),
+      lastUpdatedBy: [],
+      completedBy: undefined,
     };
     let createdTask = await workSpaceModels.createTask(id, taskToInsert);
     return res.success(createdTask);
@@ -140,3 +140,83 @@ export async function createTask(req, res) {
     return res.error(500, e);
   }
 }
+
+export async function changeWorkSpaceName(req, res) {
+  try {
+    let id = req.params.id;
+    let name = req.body.name;
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    try {
+      if (!workspace) {
+        throw "workspace not found by this id";
+      }
+      if (workspace.createdBy.toString() !== res.locals._id.toString()) {
+        return res.unauthorizedUser();
+      }
+      let isUpdated = await workSpaceModels.updateWorkspaceName(id, name);
+      return res.success(isUpdated);
+    } catch (e) {
+      return res, error(400, e);
+    }
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function updateTask(req, res) {
+  try {
+    let id = req.params.id;
+    let userId = res.locals._id.toString();
+    let taskId = req.params.taskId;
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(400, "workspace not found by this id");
+    }
+    const found = workspace.members.find(
+      (element) => element.id.toString() === userId.toString()
+    );
+    if (!found) {
+      return res.unauthorizedUser();
+    }
+    const getTask = workspace.tasks.find(
+      (element) => element._id.toString() === taskId.toString()
+    );
+    if (!getTask) {
+      return res.error(400, "Task not found by this id");
+    }
+    let body = req.body;
+    let taskToUpdate = {
+      _id: ObjectId(taskId),
+      title: body.title,
+      description: body.description,
+      startDate: body.startDate,
+      endDate: body.endDate,
+      assigned: body.assigned,
+      status: getTask.status,
+      createdBy: getTask.createdBy,
+      createdDate: getTask.createdDate,
+      lastUpdatedBy: [
+        ...getTask.lastUpdatedBy,
+        {
+          id: ObjectId(userId),
+          date: new Date(),
+        },
+      ],
+      completedBy: getTask.completedBy,
+    };
+    let createdTask = await workSpaceModels.updateTask(
+      id,
+      taskId,
+      taskToUpdate
+    );
+    return res.success(createdTask);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function getTaskById(req, res) {}
+
+export async function markTask(req, res) {}
+
+export async function deleteTask(req, res) {}

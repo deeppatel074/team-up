@@ -53,8 +53,16 @@ export async function inviteToWorkspace(id, userId) {
     throw "No workspace found by this id";
   }
   for (let elem of workspaceFound.members) {
-    if (elem.id.toString() === userId.toString()) {
+    if (
+      elem.id.toString() === userId.toString() &&
+      elem.status === constants.status.user.ACTIVE
+    ) {
       throw "User Already Exist in this workspace";
+    } else if (
+      elem.id.toString() === userId.toString() &&
+      elem.status === constants.status.user.INACTIVE
+    ) {
+      // ADD just token which user soft deleted
     }
   }
   let memberToAdd = {
@@ -134,5 +142,38 @@ export async function createTask(id, task) {
     throw "Update failed";
   return {
     added: true,
+  };
+}
+
+export async function updateWorkspaceName(id, name) {
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id) },
+    {
+      $set: {
+        name: name,
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
+  };
+}
+export async function updateTask(id, taskId, taskToUpdate) {
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id), "tasks._id": ObjectId(taskId) },
+    {
+      $set: {
+        "tasks.$": taskToUpdate,
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
   };
 }
