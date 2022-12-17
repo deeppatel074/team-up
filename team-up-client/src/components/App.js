@@ -8,6 +8,7 @@ import Navigation from './Navigation';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
 import Workspaces from './Workspaces';
+import Workspace from './Workspace';
 import CreateWorkspace from './CreateWorkspace';
 import { AuthProvider } from '../firebase/Auth';
 import PrivateRoute from './PrivateRoute';
@@ -31,6 +32,9 @@ function App() {
           </Route>
           <Route path='/workspaces' element={<PrivateRoute />}>
             <Route path='/workspaces' element={<Workspaces />} />
+          </Route>
+          <Route path='/workspace/:id' element={<PrivateRoute />}>
+            <Route path='/workspace/:id' element={<Workspace />} />
           </Route>
           <Route path='/createworkspace' element={<PrivateRoute />}>
             <Route path='/createworkspace' element={<CreateWorkspace />} />
