@@ -15,7 +15,7 @@ function Tasks() {
   const { id } = useParams();
   const userID = Cookies.get("user");
   const [taskList, setTaskList] = useState(undefined);
-  let tasks;
+  let allTasks, myTask, completedTask, activeTask;
 
   useEffect(() => {
     const getTask = async () => {
@@ -26,51 +26,38 @@ function Tasks() {
             Authorization: "Bearer " + idToken,
           },
         };
-        const { data } = await axios.get(`http://localhost:4000/workspace/${id}/tasks`, header);
+        const { data } = await axios.get(
+          `http://localhost:4000/workspace/${id}/tasks`,
+          header
+        );
         setTaskList(data);
       } catch (e) {
         console.log(e);
       }
-    }
+    };
 
     getTask();
-  }, [])
-
-
-  const updateTask = async () => {
-    try {
-      const idToken = await firebase.auth().currentUser.getIdToken();
-      const header = {
-        headers: {
-          Authorization: "Bearer " + idToken,
-        },
-      };
-      let data = {};
-      const res = await axios.put(`http://localhost:4000/workspace/task/${userID}/${id}`, data, header);
-      console.log(res);
-    } catch (e) {
-      console.log(e);
-    }
-  }
+  }, []);
 
   if (taskList) {
     let eventKey = -1;
-    tasks = taskList.allTask.map((d) => {
+    allTasks = taskList.allTask.map((d) => {
       let taskName = d.title;
       let taskDesc = d.description;
       let startDate = d.startDate.substr(0, 10);
       let endDate = d.endDate.substr(0, 10);
+      let createdName = d.createdBy[0].name;
       eventKey += 1;
       return (
         <div className="mt-2" key={d._id}>
           <Accordion>
             <Accordion.Item eventKey={eventKey}>
               <Accordion.Header>{taskName}</Accordion.Header>
-              <Accordion.Body>
-                {taskDesc}
-              </Accordion.Body>
+              <Accordion.Body>{taskDesc}</Accordion.Body>
               <Accordion.Body>
                 Start Date: {startDate} || End Date: {endDate}
+                <br />
+                Created By: {createdName}
               </Accordion.Body>
               <Accordion.Body>
                 <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
@@ -81,8 +68,98 @@ function Tasks() {
             </Accordion.Item>
           </Accordion>
         </div>
-      )
-    })
+      );
+    });
+
+    myTask = taskList.myTask.map((d) => {
+      let taskName = d.title;
+      let taskDesc = d.description;
+      let startDate = d.startDate.substr(0, 10);
+      let endDate = d.endDate.substr(0, 10);
+      let createdName = d.createdBy[0].name;
+      eventKey += 1;
+      return (
+        <div className="mt-2" key={d._id}>
+          <Accordion>
+            <Accordion.Item eventKey={eventKey}>
+              <Accordion.Header>{taskName}</Accordion.Header>
+              <Accordion.Body>{taskDesc}</Accordion.Body>
+              <Accordion.Body>
+                Start Date: {startDate} || End Date: {endDate}
+                <br />
+                Created By: {createdName}
+              </Accordion.Body>
+              <Accordion.Body>
+                <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
+                  <Button variant="secondary">Edit</Button>{" "}
+                </Link>
+                <Button variant="success">Mark As Completed</Button>{" "}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        </div>
+      );
+    });
+
+    completedTask = taskList.completedTask.map((d) => {
+      let taskName = d.title;
+      let taskDesc = d.description;
+      let startDate = d.startDate.substr(0, 10);
+      let endDate = d.endDate.substr(0, 10);
+      let createdName = d.createdBy[0].name;
+      eventKey += 1;
+      return (
+        <div className="mt-2" key={d._id}>
+          <Accordion>
+            <Accordion.Item eventKey={eventKey}>
+              <Accordion.Header>{taskName}</Accordion.Header>
+              <Accordion.Body>{taskDesc}</Accordion.Body>
+              <Accordion.Body>
+                Start Date: {startDate} || End Date: {endDate}
+                <br />
+                Created By: {createdName}
+              </Accordion.Body>
+              <Accordion.Body>
+                <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
+                  <Button variant="secondary">Edit</Button>{" "}
+                </Link>
+                <Button variant="success">Mark As Completed</Button>{" "}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        </div>
+      );
+    });
+
+    activeTask = taskList.activeTask.map((d) => {
+      let taskName = d.title;
+      let taskDesc = d.description;
+      let startDate = d.startDate.substr(0, 10);
+      let endDate = d.endDate.substr(0, 10);
+      let createdName = d.createdBy[0].name;
+      eventKey += 1;
+      return (
+        <div className="mt-2" key={d._id}>
+          <Accordion>
+            <Accordion.Item eventKey={eventKey}>
+              <Accordion.Header>{taskName}</Accordion.Header>
+              <Accordion.Body>{taskDesc}</Accordion.Body>
+              <Accordion.Body>
+                Start Date: {startDate} || End Date: {endDate}
+                <br />
+                Created By: {createdName}
+              </Accordion.Body>
+              <Accordion.Body>
+                <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
+                  <Button variant="secondary">Edit</Button>{" "}
+                </Link>
+                <Button variant="success">Mark As Completed</Button>{" "}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        </div>
+      );
+    });
   }
 
   return (
@@ -109,22 +186,32 @@ function Tasks() {
                   Completed Task
                 </ListGroup.Item>
               </ListGroup>
-              <div style={{ marginTop: "20px" }}>
-                <Link to={`/workspace/${id}/tasks/create`}>
-                  <Button variant="dark">Create New Task</Button>
-                </Link>
-              </div>
             </Col>
             <Col sm={9}>
               <Tab.Content>
-                <Tab.Pane eventKey="#AllTask">{tasks}</Tab.Pane>
-                <Tab.Pane eventKey="#ActiveTask">{tasks}</Tab.Pane>
-                <Tab.Pane eventKey="#MyTask">{tasks}</Tab.Pane>
-                <Tab.Pane eventKey="#CompletedTask">{tasks}</Tab.Pane>
+                <Tab.Pane eventKey="#AllTask">{allTasks}</Tab.Pane>
+                <Tab.Pane eventKey="#ActiveTask">{activeTask}</Tab.Pane>
+                <Tab.Pane eventKey="#MyTask">{myTask}</Tab.Pane>
+                <Tab.Pane eventKey="#CompletedTask">{completedTask}</Tab.Pane>
               </Tab.Content>
             </Col>
           </Row>
         </Tab.Container>
+      </div>
+      <div>
+        <Link to={`/workspace/${id}/tasks/create`}>
+          <Button
+            variant="dark"
+            style={{
+              position: "fixed",
+              bottom: "12px",
+              left: "10px",
+              borderRadius: "20PX",
+            }}
+          >
+            Create New Task
+          </Button>
+        </Link>
       </div>
 
       {/* <div className="row">
