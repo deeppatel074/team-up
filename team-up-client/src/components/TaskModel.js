@@ -1,7 +1,7 @@
 import "../App.css";
 import axios from "axios";
 import firebase from "firebase/compat/app";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -10,12 +10,13 @@ import Cookies from "js-cookie";
 
 function TaskModel() {
   const userID = Cookies.get("user");
+  const { id } = useParams();
   let navigate = useNavigate();
   const [show, setShow] = useState(true);
 
   const handleClose = () => {
     setShow(false);
-  }
+  };
 
   const createTask = async () => {
     try {
@@ -27,7 +28,7 @@ function TaskModel() {
         title: title,
         description: description,
         startDate: startDate,
-        endDate: endDate
+        endDate: endDate,
       };
       const idToken = await firebase.auth().currentUser.getIdToken();
       const header = {
@@ -35,12 +36,16 @@ function TaskModel() {
           Authorization: "Bearer " + idToken,
         },
       };
-      const res = await axios.post(`http://localhost:4000/task/${userID}`, data, header);
+      const res = await axios.post(
+        `http://localhost:4000/workspace/task/${id}`,
+        data,
+        header
+      );
       console.log(res);
     } catch (e) {
       console.log(e);
     }
-  }
+  };
 
   return (
     <Modal show={show}>
