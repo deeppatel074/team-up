@@ -46,7 +46,7 @@ function SignIn() {
         );
         if (data) {
           console.log(data);
-          Cookies.set("user", data._id.toString());
+          Cookies.set("user", data._id);
           if (data) {
             navigate("/workspaces");
           }

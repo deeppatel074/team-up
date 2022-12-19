@@ -26,7 +26,7 @@ const SocialSignIn = () => {
           }
         );
         if (data) {
-          Cookies.set("user", data.id);
+          Cookies.set("user", data._id);
           navigate("/workspaces");
         }
       } catch (e) {
