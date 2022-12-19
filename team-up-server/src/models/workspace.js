@@ -109,7 +109,15 @@ export async function verifyInvite(userId, token) {
 export async function getAllWorkspaceByUserId(userId) {
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.find({
-    $or: [{ createdBy: ObjectId(userId) }, { "members.id": ObjectId(userId) }],
+    $or: [
+      { createdBy: ObjectId(userId) },
+      {
+        $and: [
+          { "members.id": ObjectId(userId) },
+          { "members.$.status": constants.status.user.ACTIVE },
+        ],
+      },
+    ],
   })
     .sort({ createdDate: -1 })
     .toArray();
