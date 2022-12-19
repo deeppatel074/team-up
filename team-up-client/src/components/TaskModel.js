@@ -6,10 +6,8 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
-import Cookies from "js-cookie";
 
 function TaskModel() {
-  const userID = Cookies.get("user");
   const { id } = useParams();
   let navigate = useNavigate();
   const [show, setShow] = useState(true);
@@ -20,10 +18,10 @@ function TaskModel() {
 
   const createTask = async () => {
     try {
-      let title = document.getElementById("title").value;
-      let description = document.getElementById("description").value;
-      let startDate = document.getElementById("startDate").value;
-      let endDate = document.getElementById("endDate").value;
+      let title = document.getElementById("title").value.trim();
+      let description = document.getElementById("description").value.trim();
+      let startDate = document.getElementById("startDate").value.trim();
+      let endDate = document.getElementById("endDate").value.trim();
       const data = {
         title: title,
         description: description,
@@ -36,6 +34,7 @@ function TaskModel() {
           Authorization: "Bearer " + idToken,
         },
       };
+      console.log(id);
       const res = await axios.post(
         `http://localhost:4000/workspace/task/${id}`,
         data,
@@ -98,14 +97,14 @@ function TaskModel() {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Link to={`/workspace/${userID}/tasks`}>
+        <Link to={`/workspace/${id}/tasks`}>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
+          <Button onClick={createTask} variant="primary">
+            Create
+          </Button>
         </Link>
-        <Button onClick={createTask} variant="primary">
-          Create
-        </Button>
       </Modal.Footer>
     </Modal>
   );

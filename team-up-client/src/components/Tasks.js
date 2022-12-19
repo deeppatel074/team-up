@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import WorkspaceNavBar from "./WorkspaceNavBar";
 import Button from "react-bootstrap/Button";
@@ -14,6 +14,28 @@ import Cookies from "js-cookie";
 function Tasks() {
   const { id } = useParams();
   const userID = Cookies.get("user");
+  const [taskList, setTaskList] = useState(undefined);
+  let tasks;
+
+  useEffect(() => {
+    const getTask = async () => {
+      try {
+        const idToken = await firebase.auth().currentUser.getIdToken();
+        const header = {
+          headers: {
+            Authorization: "Bearer " + idToken,
+          },
+        };
+        const { data } = await axios.get(`http://localhost:4000/workspace/${id}/tasks`, header);
+        setTaskList(data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    getTask();
+  }, [])
+
 
   const updateTask = async () => {
     try {
@@ -24,60 +46,45 @@ function Tasks() {
         },
       };
       let data = {};
-      const res = await axios.put(`http://localhost:4000/task/${userID}/${id}`, data, header);
+      const res = await axios.put(`http://localhost:4000/workspace/task/${userID}/${id}`, data, header);
       console.log(res);
     } catch (e) {
       console.log(e);
     }
   }
 
-  let tasks = (
-    <div className="mt-2">
-      {" "}
-      <Accordion>
-        <Accordion.Item eventKey="0">
-          <Accordion.Header>Task 1</Accordion.Header>
-          <Accordion.Body>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
-          </Accordion.Body>
-          <Accordion.Body>
-            Start Date: Date || End Date: Date <br /> Created By: Created User
-          </Accordion.Body>
-          <Accordion.Body>
-            <Button variant="secondary">Edit</Button>{" "}
-            <Button variant="success">Mark As Completed</Button>{" "}
-          </Accordion.Body>
-        </Accordion.Item>
-        <Accordion.Item eventKey="1">
-          <Accordion.Header>Task 2</Accordion.Header>
-          <Accordion.Body>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
-          </Accordion.Body>
-          <Accordion.Body>
-            Start Date: Date || End Date: Date <br /> Created By: Created User
-          </Accordion.Body>
-          <Accordion.Body>
-            <Link to="/workspace/:id/tasks/:taskId/edit">
-              <Button variant="secondary">Edit</Button>
-            </Link>
-            <Button variant="success">Mark As Completed</Button>{" "}
-          </Accordion.Body>
-        </Accordion.Item>
-      </Accordion>
-    </div>
-  );
+  if (taskList) {
+    let eventKey = -1;
+    tasks = taskList.allTask.map((d) => {
+      let taskName = d.title;
+      let taskDesc = d.description;
+      let startDate = d.startDate.substr(0, 10);
+      let endDate = d.endDate.substr(0, 10);
+      eventKey += 1;
+      return (
+        <div className="mt-2" key={d._id}>
+          <Accordion>
+            <Accordion.Item eventKey={eventKey}>
+              <Accordion.Header>{taskName}</Accordion.Header>
+              <Accordion.Body>
+                {taskDesc}
+              </Accordion.Body>
+              <Accordion.Body>
+                Start Date: {startDate} || End Date: {endDate}
+              </Accordion.Body>
+              <Accordion.Body>
+                <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
+                  <Button variant="secondary">Edit</Button>{" "}
+                </Link>
+                <Button variant="success">Mark As Completed</Button>{" "}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        </div>
+      )
+    })
+  }
+
   return (
     <div>
       <WorkspaceNavBar data={{ id: id, active: `2` }} />
