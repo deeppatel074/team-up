@@ -38,6 +38,9 @@ routes.patch("/task/:id/:taskId", verify, WorkspaceController.markTask);
 // Delete Task
 routes.delete("/task/:id/:taskId", verify, WorkspaceController.deleteTask);
 
+//Get all Members
+routes.get("/:id/members", verify, WorkspaceController.getTeam);
+
 routes.post("/:id/invite", verify, WorkspaceController.sendInvite);
 
 routes.get("/invite/:userId/:token", WorkspaceController.verifyInvite);
