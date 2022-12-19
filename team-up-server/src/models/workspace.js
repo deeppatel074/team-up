@@ -178,7 +178,11 @@ export async function updateTask(id, taskId, taskToUpdate) {
   };
 }
 
-export async function getTask(id) {
+export async function getTask(id, userId) {
+  let allTask = [],
+    myTask = [],
+    completedTask = [],
+    activeTask = [];
   const WorkspaceCollection = await workspace();
   const tasks = await WorkspaceCollection.aggregate([
     {
@@ -193,9 +197,8 @@ export async function getTask(id) {
         pipeline: [
           {
             $project: {
-              _id: 0,
-              firstName: 1,
-              lastName: 1,
+              _id: 1,
+              name: 1,
             },
           },
         ],
@@ -204,21 +207,65 @@ export async function getTask(id) {
     },
     {
       $project: {
-        _id: 0,
-        tasks: 1,
-      },
-    },
-    {
-      $group: {
-        _id: "$tasks._id",
-        tasks: { $push: "$tasks" },
+        _id: 1,
+        task: "$tasks",
       },
     },
   ]).toArray();
-  let allTask = [],
-    completedTask = [],
-    myTask = [],
-    activeTask = [];
 
-  return tasks;
+  if (tasks && tasks.length > 0) {
+    for (let elem of tasks) {
+      allTask.push(elem.task);
+      if (elem.task.createdBy[0]._id.toString() === userId.toString()) {
+        myTask.push(elem.task);
+      }
+      if (elem.task.status === constants.status.task.COMPLETED) {
+        completedTask.push(elem.task);
+      }
+      if (elem.task.status === constants.status.task.INCOMPLETE) {
+        activeTask.push(elem.task);
+      }
+    }
+  }
+
+  return {
+    activeTask,
+    myTask,
+    completedTask,
+    allTask,
+  };
+}
+
+export async function markTask(id, taskId, status) {
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id), "tasks._id": ObjectId(taskId) },
+    {
+      $set: {
+        "tasks.$.status": status,
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
+  };
+}
+
+export async function deleteTask(id, taskId) {
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id) },
+    {
+      $pull: {
+        tasks: { _id: ObjectId(taskId) },
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
+  };
 }

@@ -130,7 +130,6 @@ export async function createTask(req, res) {
       status: constants.status.task.INCOMPLETE,
       createdBy: ObjectId(userId),
       createdDate: new Date(),
-      isCompleted: false,
       completedBy: undefined,
     };
     let createdTask = await workSpaceModels.createTask(id, taskToInsert);
@@ -193,7 +192,6 @@ export async function updateTask(req, res) {
       status: getTask.status,
       createdBy: getTask.createdBy,
       createdDate: getTask.createdDate,
-      isCompleted: getTask.isCompleted,
       completedBy: getTask.completedBy,
     };
     let createdTask = await workSpaceModels.updateTask(
@@ -208,25 +206,68 @@ export async function updateTask(req, res) {
 }
 
 export async function getALLTask(req, res) {
-  let id = req.params.id;
-  let userId = res.locals._id.toString();
-  let workspace = await workSpaceModels.getWorkspaceById(id);
-  if (!workspace) {
-    return res.error(400, "workspace not found by this id");
-  }
-  const found = workspace.members.find(
-    (element) => element.id.toString() === userId.toString()
-  );
-  if (!found) {
-    return res.unauthorizedUser();
-  }
+  try {
+    let id = req.params.id;
+    let userId = res.locals._id.toString();
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(400, "workspace not found by this id");
+    }
+    const found = workspace.members.find(
+      (element) => element.id.toString() === userId.toString()
+    );
+    if (!found) {
+      return res.unauthorizedUser();
+    }
 
-  let tasks = await workSpaceModels.getTask(id);
-  return res.success(tasks);
+    let tasks = await workSpaceModels.getTask(id, userId);
+    return res.success(tasks);
+  } catch (e) {
+    return res.error(500, e);
+  }
 }
 
-export async function getTaskById(req, res) {}
+export async function getTaskById(req, res) {
+  try {
+    let id = req.params.id;
+    let taskId = req.params.taskId;
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    const task = workspace.tasks.find(
+      (element) => element._id.toString() === taskId.toString()
+    );
+    if (!task) {
+      return res.error(404, "Task Not found");
+    }
 
-export async function markTask(req, res) {}
+    return res.success(task);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
 
-export async function deleteTask(req, res) {}
+export async function markTask(req, res) {
+  try {
+    let isCompleted = req.body.isCompleted;
+    let id = req.params.id;
+    let taskId = req.params.taskId;
+    let status = constants.status.task.INCOMPLETE;
+    if (isCompleted) {
+      status = constants.status.task.COMPLETED;
+    }
+    let updated = await workSpaceModels.markTask(id, taskId, status);
+    return res.success(updated);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function deleteTask(req, res) {
+  try {
+    let id = req.params.id;
+    let taskId = req.params.taskId;
+    let deleted = await workSpaceModels.deleteTask(id, taskId);
+    return res.success(updated);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
