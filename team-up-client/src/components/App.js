@@ -20,6 +20,7 @@ import Tasks from "./Tasks";
 import Meetings from "./Meetings";
 import Files from "./Files";
 import TaskModel from "./TaskModel";
+import EditTaskModel from "./EditTaskModel";
 // import Cookies from "js-cookie";
 // import Settings from "./Settings";
 
@@ -54,6 +55,9 @@ function App() {
           </Route>
           <Route path="/workspace/:id/tasks/create" element={<PrivateRoute />}>
             <Route path="/workspace/:id/tasks/create" element={<TaskModel />} />
+          </Route>
+          <Route path="/workspace/:id/tasks/edit/:taskID" element={<PrivateRoute />}>
+            <Route path="/workspace/:id/tasks/edit/:taskID" element={<EditTaskModel />} />
           </Route>
           <Route
             path="/workspace/:id/tasks/:taskId/edit"
