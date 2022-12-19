@@ -285,6 +285,19 @@ function Tasks() {
             variant="dark"
             style={{
               position: "fixed",
+              bottom: "70px",
+              left: "10px",
+              borderRadius: "20PX",
+            }}
+          >
+            Schedule Meeting
+          </Button>
+        </Link>
+        <Link to={`/workspace/${id}/tasks/create`}>
+          <Button
+            variant="dark"
+            style={{
+              position: "fixed",
               bottom: "12px",
               left: "10px",
               borderRadius: "20PX",

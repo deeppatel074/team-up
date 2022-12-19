@@ -32,10 +32,31 @@ export async function sendInvite(req, res) {
       userName = isUser.firstName + " " + isUser.lastName;
     }
     try {
-      let addToWorkspace = await workSpaceModels.inviteToWorkspace(
-        workspaceId,
-        userId
+      // find in workspace if find send send token again else create
+
+      let workspace = await workSpaceModels.getWorkspaceById(workspaceId);
+      if (!workspace) {
+        throw "workspace not found by this id";
+      }
+      const found = workspace.members.find(
+        (element) => element.id.toString() === userId.toString()
       );
+      let addToWorkspace;
+      if (!found) {
+        addToWorkspace = await workSpaceModels.inviteToWorkspace(
+          workspaceId,
+          userId
+        );
+      } else {
+        if (found.tempToken === null) {
+          return res.error(400, "User Already Present In Workspace");
+        }
+        addToWorkspace = {
+          workspaceName: workspace.name,
+          memberToAdd: found,
+        };
+      }
+
       //send email Here
       sendMail(
         "invite",
@@ -48,6 +69,9 @@ export async function sendInvite(req, res) {
           url: `${process.env.INVITE_BASE_URL}/workspace/invite/${userId}/${addToWorkspace.memberToAdd.tempToken}`,
         }
       );
+      return res.success({
+        send: true,
+      });
     } catch (e) {
       return res.error(400, e);
     }

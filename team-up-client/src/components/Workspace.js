@@ -4,11 +4,15 @@ import axios from "axios";
 import firebase from "firebase/compat/app";
 import "../App.css";
 import WorkspaceNavBar from "./WorkspaceNavBar";
+import Cookies from "js-cookie";
 import { Button, Card, Form, ListGroup, Badge } from "react-bootstrap";
 function Workspace() {
   const [ws, setWS] = useState(undefined);
   const [getMembers, SetMembers] = useState(undefined);
   const { id } = useParams();
+  let isDisabled = true;
+  const userID = Cookies.get("user");
+  const [getInvited, setInvited] = useState(false);
 
   useEffect(() => {
     const getWS = async (id) => {
@@ -33,6 +37,7 @@ function Workspace() {
   }, [id]);
 
   useEffect(() => {
+    setInvited(false);
     const getMembersData = async (id) => {
       try {
         const idToken = await firebase.auth().currentUser.getIdToken();
@@ -52,10 +57,15 @@ function Workspace() {
       }
     };
     getMembersData(id);
-  }, [id]);
+  }, [id, getInvited]);
 
   let name = "Not Found";
-  if (ws) name = ws.name;
+  if (ws) {
+    name = ws.name;
+    if (ws.createdBy.toString() === userID.toString()) {
+      isDisabled = false;
+    }
+  }
 
   const handleInvite = async (e) => {
     try {
@@ -76,6 +86,7 @@ function Workspace() {
           param,
           header
         );
+        setInvited(true);
         console.log(data);
       } else {
         alert("Enter Valid Email");
@@ -145,7 +156,11 @@ function Workspace() {
                   />
                 </Form.Group>
               </Form>
-              <Button variant="dark" onClick={handleInvite}>
+              <Button
+                variant="dark"
+                disabled={isDisabled}
+                onClick={handleInvite}
+              >
                 Invite
               </Button>
             </Card.Body>

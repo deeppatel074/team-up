@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import "../App.css";
 function WorkspaceNavBar(props) {
   return (
-    <Nav fill variant="tabs" defaultActiveKey={props.data.active}>
+    <Nav variant="tabs" defaultActiveKey={props.data.active}>
       <Nav.Item>
         <Nav.Link
           as={NavLink}
@@ -23,7 +23,7 @@ function WorkspaceNavBar(props) {
           Files
         </Nav.Link>
       </Nav.Item>
-      <Nav.Item>
+      {/* <Nav.Item>
         <Nav.Link
           as={NavLink}
           eventKey="4"
@@ -31,7 +31,7 @@ function WorkspaceNavBar(props) {
         >
           Meetings
         </Nav.Link>
-      </Nav.Item>
+      </Nav.Item> */}
       <Nav.Item>
         <Nav.Link eventKey="1" as={NavLink} to={`/workspace/${props.data.id}`}>
           Setting
