@@ -3,23 +3,20 @@ import constants from "../config/constants";
 import { v4 as uuidv4 } from "uuid";
 const users = mongoCollections.users;
 
-export async function signinData(authToken, email) {
+export async function signinData(authToken, email, name) {
   const userCollection = await users();
   let newUser = {
     authToken: authToken,
     email: email,
-    firstName: undefined,
-    lastName: undefined,
-    profileUrl: undefined,
+    name: name,
     createdDate: new Date(),
-    status: constants.status.user.INACTIVE,
+    status: constants.status.user.ACTIVE,
   };
 
   const newInsertInformation = await userCollection.insertOne(newUser);
   if (newInsertInformation.insertedCount === 0) throw "Insert failed!";
-  return {
-    id: newInsertInformation.insertedId.toString(),
-  };
+
+  return await findByEmail(email);
 }
 
 export async function updateAuthToken(authToken, email) {
@@ -36,7 +33,7 @@ export async function updateAuthToken(authToken, email) {
   );
   if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
     throw "Update failed";
-  return user._id;
+  return await findByEmail(email);
 }
 
 export async function findByEmail(email) {
@@ -48,25 +45,23 @@ export async function findByEmail(email) {
   return user;
 }
 
-export async function completeProfile(_id, firstName, lastName, profileUrl) {
-  const userCollection = await users();
-  const updateInfo = await userCollection.updateOne(
-    { _id },
-    {
-      $set: {
-        firstName,
-        lastName,
-        profileUrl,
-        status: constants.status.user.ACTIVE,
-      },
-    }
-  );
-  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
-    throw "Update failed";
-  return {
-    updated: true,
-  };
-}
+// export async function completeProfile(_id, firstName, lastName, profileUrl) {
+//   const userCollection = await users();
+//   const updateInfo = await userCollection.updateOne(
+//     { _id },
+//     {
+//       $set: {
+//         displayName
+//         status: constants.status.user.ACTIVE,
+//       },
+//     }
+//   );
+//   if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+//     throw "Update failed";
+//   return {
+//     updated: true,
+//   };
+// }
 export async function createInviteUser(email) {
   const userCollection = await users();
   let newUser = {

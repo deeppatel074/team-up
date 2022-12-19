@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import SocialSignIn from "./SocialSignIn";
-import { Navigate } from "react-router-dom";
+// import { Navigate } from "react-router-dom";
 import { AuthContext } from "../firebase/Auth";
 import {
   doSignInWithEmailAndPassword,
@@ -14,9 +14,11 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
+import { useNavigate } from "react-router-dom";
 
 function SignIn() {
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
   const handleLogin = async (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
@@ -31,22 +33,24 @@ function SignIn() {
       try {
         await doSignInWithEmailAndPassword(email.value, password.value);
         let idToken = await firebase.auth().currentUser.getIdToken();
-        axios
-          .post("http://localhost:4000/users/login", null, {
+        let { data } = await axios.post(
+          "http://localhost:4000/users/login",
+          null,
+          {
             headers: {
               // "Content-Type": "application/json",
               Authorization: "Bearer " + idToken,
               // "Accept":"application/json"
             },
-          })
-          .then((response) => {
-            setValidated(true);
-            Cookies.set("user", response.data.id);
-            console.log(response);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+          }
+        );
+        if (data) {
+          console.log(data);
+          Cookies.set("user", data._id.toString());
+          if (data) {
+            navigate("/workspaces");
+          }
+        }
       } catch (error) {
         alert(error);
       }
@@ -66,10 +70,9 @@ function SignIn() {
       );
     }
   };
-
-  if (currentUser) {
-    return <Navigate to="/workspaces" />;
-  }
+  // if (currentUser) {
+  //   return <Navigate to="/workspace" />;
+  // }
   return (
     <div className="d-flex justify-content-center mt-4">
       <Card className="p-3">

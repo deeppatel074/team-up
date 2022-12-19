@@ -42,6 +42,8 @@ routes.post("/:id/invite", verify, WorkspaceController.sendInvite);
 
 routes.get("/invite/:userId/:token", WorkspaceController.verifyInvite);
 
+routes.get("/:id/tasks", verify, WorkspaceController.getALLTask);
+
 routes.get("/:id", verify, WorkspaceController.getWorkspaceById);
 
 routes.put(

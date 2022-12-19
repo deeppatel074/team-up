@@ -1,7 +1,12 @@
 import React from "react";
 import "../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  // Navigate,
+} from "react-router-dom";
 import Account from "./Account";
 import Navigation from "./Navigation";
 import SignIn from "./SignIn";
@@ -14,7 +19,9 @@ import PrivateRoute from "./PrivateRoute";
 import Tasks from "./Tasks";
 import Meetings from "./Meetings";
 import Files from "./Files";
-import Settings from "./Settings";
+import TaskModel from "./TaskModel";
+// import Cookies from "js-cookie";
+// import Settings from "./Settings";
 
 function App() {
   return (
@@ -24,8 +31,8 @@ function App() {
           <Navigation />
         </div>
         <Routes>
-          <Route path="/account" element={<PrivateRoute />}>
-            <Route path="/account" element={<Account />} />
+          <Route path="/accounts" element={<PrivateRoute />}>
+            <Route path="/accounts" element={<Account />} />
           </Route>
           <Route path="/workspaces" element={<PrivateRoute />}>
             <Route path="/workspaces" element={<Workspaces />} />
@@ -36,17 +43,26 @@ function App() {
           <Route path="/workspaces/create" element={<PrivateRoute />}>
             <Route path="/workspaces/create" element={<CreateWorkspace />} />
           </Route>
-          <Route path="/workspaces/:id/tasks" element={<PrivateRoute />}>
-            <Route path="/workspaces/:id/tasks" element={<Tasks />} />
+          <Route path="/workspace/:id/tasks" element={<PrivateRoute />}>
+            <Route path="/workspace/:id/tasks" element={<Tasks />} />
           </Route>
-          <Route path="/workspaces/:id/files" element={<PrivateRoute />}>
-            <Route path="/workspaces/:id/files" element={<Files />} />
+          <Route path="/workspace/:id/files" element={<PrivateRoute />}>
+            <Route path="/workspace/:id/files" element={<Files />} />
           </Route>
-          <Route path="/workspaces/:id/meetings" element={<PrivateRoute />}>
-            <Route path="/workspaces/:id/meetings" element={<Meetings />} />
+          <Route path="/workspace/:id/meetings" element={<PrivateRoute />}>
+            <Route path="/workspace/:id/meetings" element={<Meetings />} />
           </Route>
-          <Route path="/workspaces/:id/setting" element={<PrivateRoute />}>
-            <Route path="/workspaces/:id/setting" element={<Settings />} />
+          <Route path="/workspace/:id/tasks/create" element={<PrivateRoute />}>
+            <Route path="/workspace/:id/tasks/create" element={<TaskModel />} />
+          </Route>
+          <Route
+            path="/workspace/:id/tasks/:taskId/edit"
+            element={<PrivateRoute />}
+          >
+            <Route
+              path="/workspace/:id/tasks/:taskId/edit"
+              element={<TaskModel />}
+            />
           </Route>
           <Route path="/login" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />

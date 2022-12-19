@@ -9,10 +9,11 @@ import Card from "react-bootstrap/Card";
 
 function Workspaces() {
   const [ws, setWS] = useState(undefined);
+
   useEffect(() => {
     const getWS = async () => {
-      const userID = Cookies.get("user");
       const idToken = await firebase.auth().currentUser.getIdToken();
+      const userID = Cookies.get("user");
       const header = {
         headers: {
           Authorization: "Bearer " + idToken,
@@ -28,23 +29,27 @@ function Workspaces() {
         console.log(e);
       }
     };
+    // if (getUser) {
     getWS();
+    // }
   }, []);
 
   let op = undefined;
-  let createNew = <div className="col">
-    <Card
-      className="text-center card"
-      style={{ width: "18rem", height: "13rem", marginTop: "20px" }}
-    >
-      <Card.Body style={{ marginTop: "50px" }}>
-        <Card.Title>Create New Workspace</Card.Title>
-        <Link to="/workspaces/create">
-          <Button variant="primary">Create</Button>
-        </Link>
-      </Card.Body>
-    </Card>
-  </div>;
+  let createNew = (
+    <div className="col">
+      <Card
+        className="text-center card"
+        style={{ width: "18rem", height: "13rem", marginTop: "20px" }}
+      >
+        <Card.Body style={{ marginTop: "50px" }}>
+          <Card.Title>Create New Workspace</Card.Title>
+          <Link to="/workspaces/create">
+            <Button variant="dark">Create</Button>
+          </Link>
+        </Card.Body>
+      </Card>
+    </div>
+  );
 
   if (ws && ws.length !== 0) {
     const user = Cookies.get("user");
@@ -71,8 +76,6 @@ function Workspaces() {
                 </Card.Text>
                 <Card.Text className="h6 ">Role: {role}</Card.Text>
               </Link>
-              {settingsBtn}
-              {deleteBtn}
             </Card.Body>
           </Card>
         </div>

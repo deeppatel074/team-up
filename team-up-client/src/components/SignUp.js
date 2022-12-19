@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Navigate } from "react-router-dom";
+// import { Navigate } from "react-router-dom";
 import { doCreateUserWithEmailAndPassword } from "../firebase/FirebaseFunctions";
 import { AuthContext } from "../firebase/Auth";
 import SocialSignIn from "./SocialSignIn";
@@ -11,8 +11,10 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
+import { useNavigate } from "react-router-dom";
 function SignUp() {
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [pwMatch, setPwMatch] = useState("");
   const [validated, setValidated] = useState(false);
   const handleSignUp = async (e) => {
@@ -23,7 +25,7 @@ function SignUp() {
       setValidated(true);
     } else {
       e.preventDefault();
-      const { email, passwordOne, passwordTwo } = e.target.elements;
+      const { name, email, passwordOne, passwordTwo } = e.target.elements;
       if (passwordOne.value !== passwordTwo.value) {
         setPwMatch("Passwords do not match");
         alert(pwMatch);
@@ -36,20 +38,21 @@ function SignUp() {
 
         // console.log(idToken);
         try {
-          axios
-            .post("http://localhost:4000/users/signup", null, {
+          let { data } = await axios.post(
+            "http://localhost:4000/users/signup",
+            {
+              name: name.value,
+            },
+            {
               headers: {
-                // "Content-Type": "application/json",
                 Authorization: "Bearer " + idToken,
-                // "Accept":"application/json"
               },
-            })
-            .then((response) => {
-              console.log(response);
-            })
-            .catch((error) => {
-              alert(error.message);
-            });
+            }
+          );
+          if (data) {
+            Cookies.set("user", data.id);
+            navigate("/workspaces");
+          }
         } catch (e) {
           alert(e.message);
         }
@@ -58,10 +61,9 @@ function SignUp() {
       }
     }
   };
-  if (currentUser) {
-    return <Navigate to="/home" />;
-  }
-
+  // if (currentUser) {
+  //   return <Navigate to="/workspace" />;
+  // }
   return (
     <div className="d-flex justify-content-center mt-4">
       <Card className="p-3">
@@ -70,6 +72,21 @@ function SignUp() {
         </Card.Title>
         <Card.Body>
           <Form noValidate validated={validated} onSubmit={handleSignUp}>
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="validationCustom00">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  required
+                  type="name"
+                  name="name"
+                  placeholder="Enter your name"
+                />
+                <Form.Control.Feedback type="invalid">
+                  Enter valid name
+                </Form.Control.Feedback>
+                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              </Form.Group>
+            </Row>
             <Row className="mb-3">
               <Form.Group as={Col} controlId="validationCustom01">
                 <Form.Label>Email</Form.Label>
