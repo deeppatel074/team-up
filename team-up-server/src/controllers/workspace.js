@@ -271,3 +271,24 @@ export async function deleteTask(req, res) {
     return res.error(500, e);
   }
 }
+
+export async function getTeam(req, res) {
+  try {
+    let id = req.params.id;
+    let userId = res.locals._id.toString();
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(400, "workspace not found by this id");
+    }
+    const found = workspace.members.find(
+      (element) => element.id.toString() === userId.toString()
+    );
+    if (!found) {
+      return res.unauthorizedUser();
+    }
+    let getTeam = await workSpaceModels.getTeam(id);
+    return res.success(getTeam);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}

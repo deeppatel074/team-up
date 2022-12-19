@@ -269,3 +269,36 @@ export async function deleteTask(id, taskId) {
     updated: true,
   };
 }
+
+export async function getTeam(id) {
+  const WorkspaceCollection = await workspace();
+  const members = await WorkspaceCollection.aggregate([
+    {
+      $match: { _id: ObjectId(id) },
+    },
+    { $unwind: "$members" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "members.id",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+            },
+          },
+        ],
+        as: "members.id",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        members: 1,
+      },
+    },
+  ]).toArray();
+  return members;
+}
