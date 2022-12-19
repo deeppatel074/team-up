@@ -7,8 +7,29 @@ import Col from "react-bootstrap/Col";
 import ListGroup from "react-bootstrap/ListGroup";
 import Row from "react-bootstrap/Row";
 import Tab from "react-bootstrap/Tab";
+import axios from "axios";
+import firebase from "firebase/compat/app";
+import Cookies from "js-cookie";
+
 function Tasks() {
   const { id } = useParams();
+  const userID = Cookies.get("user");
+
+  const updateTask = async () => {
+    try {
+      const idToken = await firebase.auth().currentUser.getIdToken();
+      const header = {
+        headers: {
+          Authorization: "Bearer " + idToken,
+        },
+      };
+      let data = {};
+      const res = await axios.put(`http://localhost:4000/task/${userID}/${id}`, data, header);
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   let tasks = (
     <div className="mt-2">
