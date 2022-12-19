@@ -6,41 +6,42 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
+import Cookies from "js-cookie";
 
 function TaskModel() {
+  const userID = Cookies.get("user");
   let navigate = useNavigate();
   const [show, setShow] = useState(true);
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setShow(false);
+  }
 
-  const createWs = async () => {
-    // try {
-    //   let wpName = document.getElementById("wsName").value;
-    //   wpName = wpName.trim();
-    //   const param = {
-    //     name: wpName,
-    //   };
-    //   if (wpName.length < 5) alert("Name must be at least 5 letters long");
-    //   else {
-    //     const idToken = await firebase.auth().currentUser.getIdToken();
-    //     const header = {
-    //       headers: {
-    //         Authorization: "Bearer " + idToken,
-    //       },
-    //     };
-    //     const { data } = await axios.post(
-    //       "http://localhost:4000/workspace/",
-    //       param,
-    //       header
-    //     );
-    //     console.log(data);
-    //     document.getElementById("wsName").value = "";
-    //     navigate(`/workspace/${data._id}`);
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    // }
-  };
+  const createTask = async () => {
+    try {
+      let title = document.getElementById("title").value;
+      let description = document.getElementById("description").value;
+      let startDate = document.getElementById("startDate").value;
+      let endDate = document.getElementById("endDate").value;
+      const data = {
+        title: title,
+        description: description,
+        startDate: startDate,
+        endDate: endDate
+      };
+      const idToken = await firebase.auth().currentUser.getIdToken();
+      const header = {
+        headers: {
+          Authorization: "Bearer " + idToken,
+        },
+      };
+      const res = await axios.post(`http://localhost:4000/task/${userID}`, data, header);
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   return (
     <Modal show={show}>
       <Modal.Header>
@@ -92,12 +93,12 @@ function TaskModel() {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Link to="/workspaces">
+        <Link to={`/workspace/${userID}/tasks`}>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
         </Link>
-        <Button onClick={createWs} variant="primary">
+        <Button onClick={createTask} variant="primary">
           Create
         </Button>
       </Modal.Footer>
