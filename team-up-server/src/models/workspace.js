@@ -177,3 +177,48 @@ export async function updateTask(id, taskId, taskToUpdate) {
     updated: true,
   };
 }
+
+export async function getTask(id) {
+  const WorkspaceCollection = await workspace();
+  const tasks = await WorkspaceCollection.aggregate([
+    {
+      $match: { _id: ObjectId(id) },
+    },
+    { $unwind: "$tasks" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "tasks.createdBy",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $project: {
+              _id: 0,
+              firstName: 1,
+              lastName: 1,
+            },
+          },
+        ],
+        as: "tasks.createdBy",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        tasks: 1,
+      },
+    },
+    {
+      $group: {
+        _id: "$tasks._id",
+        tasks: { $push: "$tasks" },
+      },
+    },
+  ]).toArray();
+  let allTask = [],
+    completedTask = [],
+    myTask = [],
+    activeTask = [];
+
+  return tasks;
+}

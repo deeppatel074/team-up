@@ -127,11 +127,10 @@ export async function createTask(req, res) {
       description: body.description,
       startDate: body.startDate,
       endDate: body.endDate,
-      assigned: body.assigned,
       status: constants.status.task.INCOMPLETE,
       createdBy: ObjectId(userId),
       createdDate: new Date(),
-      lastUpdatedBy: [],
+      isCompleted: false,
       completedBy: undefined,
     };
     let createdTask = await workSpaceModels.createTask(id, taskToInsert);
@@ -191,17 +190,10 @@ export async function updateTask(req, res) {
       description: body.description,
       startDate: body.startDate,
       endDate: body.endDate,
-      assigned: body.assigned,
       status: getTask.status,
       createdBy: getTask.createdBy,
       createdDate: getTask.createdDate,
-      lastUpdatedBy: [
-        ...getTask.lastUpdatedBy,
-        {
-          id: ObjectId(userId),
-          date: new Date(),
-        },
-      ],
+      isCompleted: getTask.isCompleted,
       completedBy: getTask.completedBy,
     };
     let createdTask = await workSpaceModels.updateTask(
@@ -213,6 +205,24 @@ export async function updateTask(req, res) {
   } catch (e) {
     return res.error(500, e);
   }
+}
+
+export async function getALLTask(req, res) {
+  let id = req.params.id;
+  let userId = res.locals._id.toString();
+  let workspace = await workSpaceModels.getWorkspaceById(id);
+  if (!workspace) {
+    return res.error(400, "workspace not found by this id");
+  }
+  const found = workspace.members.find(
+    (element) => element.id.toString() === userId.toString()
+  );
+  if (!found) {
+    return res.unauthorizedUser();
+  }
+
+  let tasks = await workSpaceModels.getTask(id);
+  return res.success(tasks);
 }
 
 export async function getTaskById(req, res) {}

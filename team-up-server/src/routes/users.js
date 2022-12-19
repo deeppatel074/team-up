@@ -11,13 +11,13 @@ routes.post("/login", UserController.login);
 
 routes.post("/logout", verify, UserController.logout);
 
-routes.post(
-  "/profile",
-  upload.single("profileImg"),
-  verify,
-  validateProfileBody,
-  UserController.completeProfile
-);
+// routes.post(
+//   "/profile",
+//   upload.single("profileImg"),
+//   verify,
+//   validateProfileBody,
+//   UserController.completeProfile
+// );
 
 routes.get("/:id/workspace", verify, UserController.getAllWorkspaceByUserId);
 export default routes;
