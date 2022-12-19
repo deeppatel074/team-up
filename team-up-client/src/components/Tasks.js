@@ -16,6 +16,7 @@ function Tasks() {
   const userID = Cookies.get("user");
   const [taskList, setTaskList] = useState(undefined);
   let allTasks, myTask, completedTask, activeTask;
+  // const [getDate, setDate] = useState(false);
 
   useEffect(() => {
     const getTask = async () => {
@@ -38,7 +39,51 @@ function Tasks() {
 
     getTask();
   }, []);
+  const handleComplete = async () => {
+    // try {
+    //   const idToken = await firebase.auth().currentUser.getIdToken();
+    //   const header = {
+    //     headers: {
+    //       Authorization: "Bearer " + idToken,
+    //     },
+    //   };
+    //   const { data } = await axios.patch(
+    //     `http://localhost:4000/workspace/task/${id}/${taskId}`,
+    //     {
+    //       isCompleted: true,
+    //     },
+    //     header
+    //   );
+    //   if (data) {
+    //     // setDate(true);
+    //   }
+    // } catch (e) {
+    //   console.log(e);
+    // }
+  };
 
+  const handleInComplete = async () => {
+    try {
+      const idToken = await firebase.auth().currentUser.getIdToken();
+      const header = {
+        headers: {
+          Authorization: "Bearer " + idToken,
+        },
+      };
+      const { data } = await axios.patch(
+        `http://localhost:4000/workspace/task/${id}/`,
+        {
+          isCompleted: false,
+        },
+        header
+      );
+      if (data) {
+        // setDate(true);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
   if (taskList) {
     let eventKey = -1;
     allTasks = taskList.allTask.map((d) => {
@@ -47,6 +92,7 @@ function Tasks() {
       let startDate = d.startDate.substr(0, 10);
       let endDate = d.endDate.substr(0, 10);
       let createdName = d.createdBy[0].name;
+      let status = d.status;
       eventKey += 1;
       return (
         <div className="mt-2" key={d._id}>
@@ -63,7 +109,15 @@ function Tasks() {
                 <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
                   <Button variant="secondary">Edit</Button>{" "}
                 </Link>
-                <Button variant="success">Mark As Completed</Button>{" "}
+                {status === 2 ? (
+                  <Button variant="success" onClick={handleComplete}>
+                    Mark As Completed
+                  </Button>
+                ) : (
+                  <Button variant="danger" onClick={handleInComplete}>
+                    Mark As InCompleted
+                  </Button>
+                )}
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
@@ -77,6 +131,7 @@ function Tasks() {
       let startDate = d.startDate.substr(0, 10);
       let endDate = d.endDate.substr(0, 10);
       let createdName = d.createdBy[0].name;
+      let status = d.status;
       eventKey += 1;
       return (
         <div className="mt-2" key={d._id}>
@@ -93,7 +148,15 @@ function Tasks() {
                 <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
                   <Button variant="secondary">Edit</Button>{" "}
                 </Link>
-                <Button variant="success">Mark As Completed</Button>{" "}
+                {status === 2 ? (
+                  <Button variant="success" onClick={handleComplete}>
+                    Mark As Completed
+                  </Button>
+                ) : (
+                  <Button variant="danger" onClick={handleInComplete}>
+                    Mark As InCompleted
+                  </Button>
+                )}
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
@@ -107,6 +170,7 @@ function Tasks() {
       let startDate = d.startDate.substr(0, 10);
       let endDate = d.endDate.substr(0, 10);
       let createdName = d.createdBy[0].name;
+      let status = d.status;
       eventKey += 1;
       return (
         <div className="mt-2" key={d._id}>
@@ -123,7 +187,15 @@ function Tasks() {
                 <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
                   <Button variant="secondary">Edit</Button>{" "}
                 </Link>
-                <Button variant="success">Mark As Completed</Button>{" "}
+                {status === 2 ? (
+                  <Button variant="success" onClick={handleComplete}>
+                    Mark As Completed
+                  </Button>
+                ) : (
+                  <Button variant="danger" onClick={handleInComplete}>
+                    Mark As InCompleted
+                  </Button>
+                )}
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
@@ -137,6 +209,7 @@ function Tasks() {
       let startDate = d.startDate.substr(0, 10);
       let endDate = d.endDate.substr(0, 10);
       let createdName = d.createdBy[0].name;
+      let status = d.status;
       eventKey += 1;
       return (
         <div className="mt-2" key={d._id}>
@@ -151,9 +224,17 @@ function Tasks() {
               </Accordion.Body>
               <Accordion.Body>
                 <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
-                  <Button variant="secondary">Edit</Button>{" "}
+                  <Button variant="secondary">Edit</Button>
                 </Link>
-                <Button variant="success">Mark As Completed</Button>{" "}
+                {status === 2 ? (
+                  <Button variant="success" onClick={handleComplete}>
+                    Mark As Completed
+                  </Button>
+                ) : (
+                  <Button variant="danger" onClick={handleInComplete}>
+                    Mark As InCompleted
+                  </Button>
+                )}
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
@@ -213,27 +294,6 @@ function Tasks() {
           </Button>
         </Link>
       </div>
-
-      {/* <div className="row">
-        <div className="col">
-          <Card
-            className="text-center card"
-            style={{ width: "13rem", height: "13rem", marginTop: "20px" }}
-          >
-            <Card.Body style={{ marginTop: "50px" }}>
-              <Card.Title>Sort Task</Card.Title>
-              <Form>
-                <Form.Select aria-label="Sort">
-                  <option value="1">Complete</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </Form.Select>
-              </Form>
-            </Card.Body>
-          </Card>
-        </div>
-        <div className="col"></div>
-      </div> */}
     </div>
   );
 }
