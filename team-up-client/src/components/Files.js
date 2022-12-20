@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import WorkspaceNavBar from "./WorkspaceNavBar";
 import firebase from "firebase/compat/app";
 import "../App.css";
 import axios from "axios";
 import moment from "moment";
+import Cookies from "js-cookie";
 import {
   Form,
   Row,
@@ -20,7 +21,7 @@ function Files() {
   const [getInvited, setInvited] = useState(false);
   const [showAlert, setAlert] = useState(false);
   const [showError, setError] = useState("");
-
+  let navigate = useNavigate();
   useEffect(() => {
     setInvited(false);
     const getMembersData = async (id) => {
@@ -38,8 +39,14 @@ function Files() {
         setFile(data);
         console.log(data);
       } catch (e) {
-        console.log(e);
-        alert(e.response.data.error);
+        if (e.response.status === 401) {
+          alert(e.response.data.error);
+          Cookies.remove("user");
+          Cookies.remove("userName");
+          navigate("/login");
+        } else {
+          alert(e.response.data.error);
+        }
       }
     };
     getMembersData(id);

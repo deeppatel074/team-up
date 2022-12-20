@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import firebase from "firebase/compat/app";
@@ -10,6 +10,7 @@ function Workspace() {
   const [ws, setWS] = useState(undefined);
   const [getMembers, SetMembers] = useState(undefined);
   const { id } = useParams();
+  let navigate = useNavigate();
   let isDisabled = true;
   const userID = Cookies.get("user");
   const [getInvited, setInvited] = useState(false);
@@ -32,8 +33,14 @@ function Workspace() {
         setWS(data);
         console.log(data);
       } catch (e) {
-        console.log(e);
-        alert(e.response.data.error);
+        if (e.response.status === 401) {
+          alert(e.response.data.error);
+          Cookies.remove("user");
+          Cookies.remove("userName");
+          navigate("/login");
+        } else {
+          alert(e.response.data.error);
+        }
       }
     };
     getWS(id);

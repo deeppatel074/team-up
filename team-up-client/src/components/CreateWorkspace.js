@@ -7,7 +7,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
-
+import Cookies from "js-cookie";
 function CreateWorkspace() {
   let navigate = useNavigate();
   const [show, setShow] = useState(true);
@@ -44,6 +44,12 @@ function CreateWorkspace() {
       }
     } catch (err) {
       console.log(err);
+      if (err.response.status === 401) {
+        alert(err.response.data.error);
+        Cookies.remove("user");
+        Cookies.remove("userName");
+        navigate("/login");
+      }
       setError(err.response.data.error);
       setAlert(true);
       // alerts = (

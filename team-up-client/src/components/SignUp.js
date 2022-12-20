@@ -94,7 +94,7 @@ function SignUp() {
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                   required
-                  type="name"
+                  type="text"
                   name="name"
                   placeholder="Enter your name"
                 />

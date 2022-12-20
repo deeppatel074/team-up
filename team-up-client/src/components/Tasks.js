@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import WorkspaceNavBar from "./WorkspaceNavBar";
 import Button from "react-bootstrap/Button";
 import Accordion from "react-bootstrap/Accordion";
@@ -14,6 +14,7 @@ import Cookies from "js-cookie";
 function Tasks() {
   const userID = Cookies.get("user");
   const { id } = useParams();
+  let navigate = useNavigate();
   const [taskList, setTaskList] = useState(undefined);
   let allTasks, myTask, completedTask, activeTask;
   let header;
@@ -26,7 +27,7 @@ function Tasks() {
       },
     };
     return header;
-  }
+  };
 
   const getData = async () => {
     try {
@@ -40,7 +41,7 @@ function Tasks() {
       console.log(e);
       alert(e.response.data.error);
     }
-  }
+  };
 
   useEffect(() => {
     getData();
@@ -62,21 +63,30 @@ function Tasks() {
       );
       await getData();
     } catch (e) {
-      console.log(e);
-      alert(e.response.data.error);
+      if (e.response.status === 401) {
+        alert(e.response.data.error);
+        Cookies.remove("user");
+        Cookies.remove("userName");
+        navigate("/login");
+      } else {
+        alert(e.response.data.error);
+      }
     }
   };
 
   const deleteTask = async (taskID) => {
     try {
       header = await getHeader();
-      await axios.delete(`http://localhost:4000/workspace/task/${id}/${taskID}`, header);
+      await axios.delete(
+        `http://localhost:4000/workspace/task/${id}/${taskID}`,
+        header
+      );
       await getData();
     } catch (e) {
       console.log(e);
       alert(e.response.data.error);
     }
-  }
+  };
 
   let eventKey = -1;
   const createTask = (taskData) => {
@@ -99,11 +109,12 @@ function Tasks() {
         );
       }
       let deleteBtn = null;
-      if (d.createdBy[0]._id === userID) deleteBtn = (
-        <Button variant="danger" onClick={() => deleteTask(d._id)}>
-          Delete Task
-        </Button>
-      );
+      if (d.createdBy[0]._id === userID)
+        deleteBtn = (
+          <Button variant="danger" onClick={() => deleteTask(d._id)}>
+            Delete Task
+          </Button>
+        );
       eventKey += 1;
       return (
         <div className="mt-2" key={d._id}>
@@ -120,8 +131,7 @@ function Tasks() {
                 <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
                   <Button variant="secondary">Edit</Button>{" "}
                 </Link>
-                {complete}{" "}
-                {deleteBtn}{" "}
+                {complete} {deleteBtn}{" "}
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>

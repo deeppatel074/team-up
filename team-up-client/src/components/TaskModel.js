@@ -6,11 +6,14 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
+import { Alert } from "react-bootstrap";
 
 function TaskModel() {
   const { id } = useParams();
   let navigate = useNavigate();
   const [show, setShow] = useState(true);
+  const [showAlert, setAlert] = useState(false);
+  const [showError, setError] = useState("");
 
   const handleClose = () => {
     setShow(false);
@@ -30,15 +33,30 @@ function TaskModel() {
       };
       data.startDate = data.startDate.substr(0, 10);
       data.endDate = data.endDate.substr(0, 10);
-      if (data.title.length === 0) alert("Title cannot be empty");
-      else if (data.description.length === 0) alert("Description cannot be empty");
-      else if (data.startDate.length === 0) alert("Start Date cannot be empty");
-      else if (data.endDate.length === 0) alert("End Date cannot be empty");
-      else {
+      if (data.title.length === 0) {
+        // alert("Title cannot be empty");
+        setError("Title cannot be empty");
+        setAlert(true);
+      } else if (data.description.length === 0) {
+        // alert("Description cannot be empty");
+        setError("Description cannot be empty");
+        setAlert(true);
+      } else if (data.startDate.length === 0) {
+        // alert("Start Date cannot be empty");
+        setError("Start Date cannot be empty");
+        setAlert(true);
+      } else if (data.endDate.length === 0) {
+        // alert("End Date cannot be empty");
+        setError("End Date cannot be empty");
+        setAlert(true);
+      } else {
         let sd = Date.parse(data.startDate);
         let ed = Date.parse(data.endDate);
-        if (ed < sd) alert("End start can not be before start date");
-        else {
+        if (ed < sd) {
+          // alert("End start can not be before start date");
+          setError("End Date can not be before start date");
+          setAlert(true);
+        } else {
           const idToken = await firebase.auth().currentUser.getIdToken();
           const header = {
             headers: {
@@ -51,7 +69,7 @@ function TaskModel() {
             data,
             header
           );
-          console.log(res);
+          navigate(`/workspace/${id}/tasks`);
         }
       }
     } catch (e) {
@@ -66,47 +84,41 @@ function TaskModel() {
         <Modal.Title>Create Task</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <Alert
+          variant="danger"
+          show={showAlert}
+          onClose={() => setAlert(false)}
+          dismissible
+        >
+          {showError}
+        </Alert>
         <Form>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Form.Label>Title</Form.Label>
             <Form.Control
               type="text"
               placeholder="Title"
               id="title"
               name="title"
-              autoFocus
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Group className="mb-3">
             <Form.Label>Description</Form.Label>
             <Form.Control
               as="textarea"
               placeholder="Description"
               id="description"
               name="description"
-              autoFocus
               rows={3}
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Group className="mb-3">
             <Form.Label>Start Date</Form.Label>
-            <Form.Control
-              type="date"
-              id="startDate"
-              name="startDate"
-              autoFocus
-              rows={3}
-            />
+            <Form.Control type="date" id="startDate" name="startDate" />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Group className="mb-3">
             <Form.Label>End Date</Form.Label>
-            <Form.Control
-              type="date"
-              id="endDate"
-              name="endDate"
-              autoFocus
-              rows={3}
-            />
+            <Form.Control type="date" id="endDate" name="endDate" />
           </Form.Group>
         </Form>
       </Modal.Body>
@@ -115,10 +127,10 @@ function TaskModel() {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button onClick={createTask} variant="primary">
-            Create
-          </Button>
         </Link>
+        <Button onClick={createTask} variant="primary">
+          Create
+        </Button>
       </Modal.Footer>
     </Modal>
   );
