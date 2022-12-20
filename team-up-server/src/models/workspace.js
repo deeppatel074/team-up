@@ -11,7 +11,6 @@ export async function createWorkspaceModel(name, createdBy) {
     name: name,
     tasks: [],
     sharedFiles: [],
-    schedules: [],
     members: [
       {
         id: ObjectId(createdBy),
@@ -109,7 +108,15 @@ export async function verifyInvite(userId, token) {
 export async function getAllWorkspaceByUserId(userId) {
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.find({
-    $or: [{ createdBy: ObjectId(userId) }, { "members.id": ObjectId(userId) }],
+    $or: [
+      { createdBy: ObjectId(userId) },
+      {
+        $and: [
+          { "members.id": ObjectId(userId) },
+          { "members.$.status": constants.status.user.ACTIVE },
+        ],
+      },
+    ],
   })
     .sort({ createdDate: -1 })
     .toArray();
@@ -301,4 +308,27 @@ export async function getTeam(id) {
     },
   ]).toArray();
   return members;
+}
+
+export async function uploadFile(id, fileUrl, fileName) {
+  let fileToAdd = {
+    _id: ObjectId(),
+    fileUrl,
+    fileName,
+    uploadedDate: new Date(),
+  };
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id) },
+    {
+      $push: {
+        sharedFiles: fileToAdd,
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
+  };
 }

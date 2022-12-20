@@ -14,6 +14,7 @@ function Tasks() {
   const { id } = useParams();
   const [taskList, setTaskList] = useState(undefined);
   let allTasks, myTask, completedTask, activeTask;
+  // const [getDate, setDate] = useState(false);
 
   useEffect(() => {
     const getTask = async () => {
@@ -36,6 +37,28 @@ function Tasks() {
 
     getTask();
   }, []);
+  const handleComplete = async () => {
+    // try {
+    //   const idToken = await firebase.auth().currentUser.getIdToken();
+    //   const header = {
+    //     headers: {
+    //       Authorization: "Bearer " + idToken,
+    //     },
+    //   };
+    //   const { data } = await axios.patch(
+    //     `http://localhost:4000/workspace/task/${id}/${taskId}`,
+    //     {
+    //       isCompleted: true,
+    //     },
+    //     header
+    //   );
+    //   if (data) {
+    //     // setDate(true);
+    //   }
+    // } catch (e) {
+    //   console.log(e);
+    // }
+  };
 
   const completeTask = async (taskData) => {
     try {
@@ -48,10 +71,14 @@ function Tasks() {
       let dataa = {
         id: id,
         taskId: taskData._id,
-        isCompleted: false
+        isCompleted: false,
       };
       if (taskData.status === 2) dataa.isCompleted = true;
-      await axios.patch(`http://localhost:4000/workspace/task/${id}/${taskData._id}`, dataa, header);
+      await axios.patch(
+        `http://localhost:4000/workspace/task/${id}/${taskData._id}`,
+        dataa,
+        header
+      );
       const { data } = await axios.get(
         `http://localhost:4000/workspace/${id}/tasks`,
         header
@@ -60,7 +87,7 @@ function Tasks() {
     } catch (e) {
       console.log(e);
     }
-  }
+  };
 
   let eventKey = -1;
   const createTask = (taskData) => {
@@ -70,9 +97,17 @@ function Tasks() {
       let startDate = d.startDate.substr(0, 10);
       let endDate = d.endDate.substr(0, 10);
       let createdName = d.createdBy[0].name;
-      let complete = <Button variant="success" onClick={() => completeTask(d)}>Mark As Completed</Button>;
+      let complete = (
+        <Button variant="success" onClick={() => completeTask(d)}>
+          Mark As Completed
+        </Button>
+      );
       if (d.status !== 2) {
-        complete = <Button variant="danger" onClick={() => completeTask(d)}>Mark As Incomplete</Button>;
+        complete = (
+          <Button variant="danger" onClick={() => completeTask(d)}>
+            Mark As Incomplete
+          </Button>
+        );
       }
       eventKey += 1;
       return (
@@ -98,7 +133,7 @@ function Tasks() {
       );
     });
     return returnData;
-  }
+  };
 
   if (taskList) {
     allTasks = createTask(taskList.allTask);
@@ -110,6 +145,9 @@ function Tasks() {
   return (
     <div>
       <WorkspaceNavBar data={{ id: id, active: `2` }} />
+      <div className="row text-center mt-4">
+        <h1 className="h3">Tasks</h1>
+      </div>
       <div className="mt-4">
         <Tab.Container
           id="list-group-tabs-example"
@@ -144,6 +182,20 @@ function Tasks() {
         </Tab.Container>
       </div>
       <div>
+        <Link to={`/workspace/${id}/meetings`}>
+          <Button
+            variant="dark"
+            style={{
+              position: "fixed",
+              bottom: "70px",
+              left: "10px",
+              borderRadius: "20PX",
+            }}
+          >
+            Schedule Meeting
+          </Button>
+        </Link>
+
         <Link to={`/workspace/${id}/tasks/create`}>
           <Button
             variant="dark"

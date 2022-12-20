@@ -2,6 +2,7 @@ import * as workSpaceModels from "../models/workspace";
 import * as UserModels from "../models/users";
 import { sendMail } from "../services/mailer";
 import { ObjectId } from "mongodb";
+import * as S3 from "../services/s3";
 import constants from "../config/constants";
 
 export async function createWorkspace(req, res) {
@@ -32,22 +33,46 @@ export async function sendInvite(req, res) {
       userName = isUser.firstName + " " + isUser.lastName;
     }
     try {
-      let addToWorkspace = await workSpaceModels.inviteToWorkspace(
-        workspaceId,
-        userId
+      // find in workspace if find send send token again else create
+
+      let workspace = await workSpaceModels.getWorkspaceById(workspaceId);
+      if (!workspace) {
+        throw "workspace not found by this id";
+      }
+      const found = workspace.members.find(
+        (element) => element.id.toString() === userId.toString()
       );
+      let addToWorkspace;
+      if (!found) {
+        addToWorkspace = await workSpaceModels.inviteToWorkspace(
+          workspaceId,
+          userId
+        );
+      } else {
+        if (found.tempToken === null) {
+          return res.error(400, "User Already Present In Workspace");
+        }
+        addToWorkspace = {
+          workspaceName: workspace.name,
+          memberToAdd: found,
+        };
+      }
+
       //send email Here
       sendMail(
         "invite",
         email,
-        `${res.locals.firstName} ${res.locals.lastName} invited to workspace ${addToWorkspace.workspaceName}`,
+        `${res.locals.name} invited to workspace ${addToWorkspace.workspaceName}`,
         {
-          name: `${res.locals.firstName} ${res.locals.lastName}`,
+          name: `${res.locals.name}`,
           userName: userName,
           workspaceName: addToWorkspace.workspaceName,
           url: `${process.env.INVITE_BASE_URL}/workspace/invite/${userId}/${addToWorkspace.memberToAdd.tempToken}`,
         }
       );
+      return res.success({
+        send: true,
+      });
     } catch (e) {
       return res.error(400, e);
     }
@@ -288,6 +313,70 @@ export async function getTeam(req, res) {
     }
     let getTeam = await workSpaceModels.getTeam(id);
     return res.success(getTeam);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function uploadFile(req, res) {
+  try {
+    let id = req.params.id;
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(400, "workspace not found by this id");
+    }
+    let originalname = req.file.originalname;
+    let data = await S3.uploadFile(req.file, id);
+    let isUpdated = await workSpaceModels.uploadFile(
+      id,
+      data.Location,
+      originalname
+    );
+    return res.success(isUpdated);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function getFiles(req, res) {
+  try {
+    let id = req.params.id;
+    let userId = res.locals._id.toString();
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(400, "workspace not found by this id");
+    }
+    const found = workspace.members.find(
+      (element) => element.id.toString() === userId.toString()
+    );
+    if (!found) {
+      return res.unauthorizedUser();
+    }
+    return res.success(workspace.sharedFiles);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function sendMeetingLink(req, res) {
+  try {
+    let id = req.params.id;
+    let title = req.body.title;
+    let description = req.body.description;
+    let startDate = req.body.startDate;
+    let userId = res.locals._id.toString();
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(400, "workspace not found by this id");
+    }
+    const found = workspace.members.find(
+      (element) => element.id.toString() === userId.toString()
+    );
+    if (!found) {
+      return res.unauthorizedUser();
+    }
+    let getTeam = await workSpaceModels.getTeam(id);
+    return res.success({ send: true });
   } catch (e) {
     return res.error(500, e);
   }

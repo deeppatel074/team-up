@@ -6,6 +6,7 @@ import {
   validateWorkSpaceName,
   validateTaskBody,
 } from "../services/validation";
+import upload from "../config/multer";
 // import upload from "../config/multer";
 
 routes.post(
@@ -42,6 +43,16 @@ routes.delete("/task/:id/:taskId", verify, WorkspaceController.deleteTask);
 routes.get("/:id/members", verify, WorkspaceController.getTeam);
 
 routes.post("/:id/invite", verify, WorkspaceController.sendInvite);
+
+routes.post(
+  "/:id/files",
+  upload.single("file"),
+  verify,
+  WorkspaceController.uploadFile
+);
+routes.get("/:id/files", verify, WorkspaceController.getFiles);
+
+routes.post("/:id/meetings", verify, WorkspaceController.sendMeetingLink);
 
 routes.get("/invite/:userId/:token", WorkspaceController.verifyInvite);
 

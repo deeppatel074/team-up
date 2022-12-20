@@ -1,7 +1,6 @@
 import admin from "../config/firebase-config";
 import RedisClient from "../config/redisClient";
 import * as UserModels from "../models/users";
-import * as S3 from "../services/s3";
 import * as workSpaceModels from "../models/workspace";
 
 export async function signUp(req, res) {
