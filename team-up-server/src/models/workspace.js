@@ -7,8 +7,8 @@ import * as validation from "../services/validation";
 
 export async function createWorkspaceModel(name, createdBy) {
   // console.log(typeof createdBy)
-    createdBy = await validation.id(String(createdBy));
-    name = await validation.checkString(name, "name");
+  createdBy = await validation.id(String(createdBy));
+  name = await validation.checkString(name, "name");
   const WorkspaceCollection = await workspace();
 
   let newWorkspace = {
@@ -23,7 +23,7 @@ export async function createWorkspaceModel(name, createdBy) {
       },
     ],
     createdDate: new Date(),
-    createdBy: createdBy,
+    createdBy: ObjectId(createdBy),
   };
 
   const newInsertInformation = await WorkspaceCollection.insertOne(
@@ -34,7 +34,7 @@ export async function createWorkspaceModel(name, createdBy) {
 }
 
 export async function getWorkspaceById(id) {
-    id = await validation.id(id);
+  id = await validation.id(id);
   // console.log("Here");
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.findOne({
@@ -49,8 +49,8 @@ export async function getWorkspaceById(id) {
 }
 
 export async function inviteToWorkspace(id, userId) {
-    id = await validation.id(id);
-    userId = await validation.id(String(userId));
+  id = await validation.id(id);
+  userId = await validation.id(String(userId));
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.findOne({
     _id: ObjectId(id),
@@ -91,7 +91,7 @@ export async function inviteToWorkspace(id, userId) {
 }
 
 export async function verifyInvite(userId, token) {
-    userId = await validation.id(String(userId));
+  userId = await validation.id(String(userId));
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.findOne({
     "members.tempToken": token,
@@ -114,7 +114,8 @@ export async function verifyInvite(userId, token) {
 }
 
 export async function getAllWorkspaceByUserId(userId) {
-    userId = await validation.id(String(userId));
+  userId = await validation.id(String(userId));
+  console.log(userId);
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.find({
     $or: [
@@ -122,7 +123,7 @@ export async function getAllWorkspaceByUserId(userId) {
       {
         $and: [
           { "members.id": ObjectId(userId) },
-          { "members.$.status": constants.status.user.ACTIVE },
+          { "members.status": constants.status.user.ACTIVE },
         ],
       },
     ],
@@ -133,7 +134,7 @@ export async function getAllWorkspaceByUserId(userId) {
 }
 
 export async function deleteWorkspaceById(id) {
-    id = await validation.id(id);
+  id = await validation.id(id);
   const WorkspaceCollection = await workspace();
   let deleteData = await WorkspaceCollection.deleteOne({
     _id: ObjectId(id),
@@ -146,8 +147,8 @@ export async function deleteWorkspaceById(id) {
 }
 
 export async function createTask(id, task) {
-    id = await validation.id(id);
-    task = await validation.validateTask(task);
+  id = await validation.id(id);
+  task = await validation.validateTask(task);
   const WorkspaceCollection = await workspace();
   const updateInfo = await WorkspaceCollection.updateOne(
     { _id: ObjectId(id) },
@@ -165,8 +166,8 @@ export async function createTask(id, task) {
 }
 
 export async function updateWorkspaceName(id, name) {
-    id = await validation.id(id);
-    name = await validation.checkString(name, "name");
+  id = await validation.id(id);
+  name = await validation.checkString(name, "name");
   const WorkspaceCollection = await workspace();
   const updateInfo = await WorkspaceCollection.updateOne(
     { _id: ObjectId(id) },
@@ -183,9 +184,9 @@ export async function updateWorkspaceName(id, name) {
   };
 }
 export async function updateTask(id, taskId, taskToUpdate) {
-    id = await validation.id(id);
-    taskId = await validation.id(String(taskId));
-    taskToUpdate = await validation.validateTask(taskToUpdate);
+  id = await validation.id(id);
+  taskId = await validation.id(String(taskId));
+  taskToUpdate = await validation.validateTask(taskToUpdate);
   const WorkspaceCollection = await workspace();
   const updateInfo = await WorkspaceCollection.updateOne(
     { _id: ObjectId(id), "tasks._id": ObjectId(taskId) },
@@ -203,8 +204,8 @@ export async function updateTask(id, taskId, taskToUpdate) {
 }
 
 export async function getTask(id, userId) {
-    id = await validation.id(id);
-    userId = await validation.id(userId);
+  id = await validation.id(id);
+  userId = await validation.id(userId);
   let allTask = [],
     myTask = [],
     completedTask = [],
@@ -263,8 +264,8 @@ export async function getTask(id, userId) {
 }
 
 export async function markTask(id, taskId, status) {
-    id = await validation.id(id);
-    taskId = await validation.id(String(taskId));
+  id = await validation.id(id);
+  taskId = await validation.id(String(taskId));
   const WorkspaceCollection = await workspace();
   const updateInfo = await WorkspaceCollection.updateOne(
     { _id: ObjectId(id), "tasks._id": ObjectId(taskId) },
@@ -282,8 +283,8 @@ export async function markTask(id, taskId, status) {
 }
 
 export async function deleteTask(id, taskId) {
-        id = await validation.id(id);
-    taskId = await validation.id(taskId);
+  id = await validation.id(id);
+  taskId = await validation.id(taskId);
   const WorkspaceCollection = await workspace();
   const updateInfo = await WorkspaceCollection.updateOne(
     { _id: ObjectId(id) },
@@ -301,7 +302,7 @@ export async function deleteTask(id, taskId) {
 }
 
 export async function getTeam(id) {
-    id = await validation.id(id);
+  id = await validation.id(id);
   const WorkspaceCollection = await workspace();
   const members = await WorkspaceCollection.aggregate([
     {
@@ -336,9 +337,9 @@ export async function getTeam(id) {
 }
 
 export async function uploadFile(id, fileUrl, fileName) {
-    id = await validation.id(id);
-    fileName = await validation.checkString(fileName, "filename");
-    fileUrl = await validation.checkString(fileUrl, "fileUrl");
+  id = await validation.id(id);
+  fileName = await validation.checkString(fileName, "filename");
+  fileUrl = await validation.checkString(fileUrl, "fileUrl");
 
   let fileToAdd = {
     _id: ObjectId(),
