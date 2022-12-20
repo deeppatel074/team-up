@@ -15,6 +15,9 @@ import { useNavigate } from "react-router-dom";
 function SignUp() {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  // if (currentUser) {
+  //   navigate("/workspaces");
+  // }
   const [pwMatch, setPwMatch] = useState("");
   const [validated, setValidated] = useState(false);
   const handleSignUp = async (e) => {
@@ -51,6 +54,7 @@ function SignUp() {
           );
           if (data) {
             Cookies.set("user", data._id);
+            Cookies.set("userName", data.name);
             navigate("/workspaces");
           }
         } catch (e) {

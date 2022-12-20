@@ -136,7 +136,7 @@ function ChangePassword() {
   } else {
     return (
       <div>
-        <h2>
+        <h2 className="h4">
           You are signed in using a Social Media Provider, You cannot change
           your password
         </h2>

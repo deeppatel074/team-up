@@ -9,6 +9,9 @@ import { useNavigate } from "react-router-dom";
 const SocialSignIn = () => {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  // if (currentUser) {
+  //   navigate("/workspaces");
+  // }
   const socialSignOn = async (provider) => {
     try {
       await doSocialSignIn(provider);
@@ -27,6 +30,7 @@ const SocialSignIn = () => {
         );
         if (data) {
           Cookies.set("user", data._id);
+          Cookies.set("userName", data.name);
           navigate("/workspaces");
         }
       } catch (e) {
@@ -42,11 +46,6 @@ const SocialSignIn = () => {
         onClick={() => socialSignOn("google")}
         alt="google signin"
         src="/imgs/btn_google_signin.png"
-      />
-      <img
-        onClick={() => socialSignOn("facebook")}
-        alt="facebook signin"
-        src="/imgs/facebook_signin.png"
       />
     </div>
   );
