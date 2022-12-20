@@ -6,7 +6,8 @@ const workspace = mongoCollections.workspace;
 import * as validation from "../services/validation";
 
 export async function createWorkspaceModel(name, createdBy) {
-    createdBy = await validation.id(createdBy);
+  // console.log(typeof createdBy)
+    createdBy = await validation.id(String(createdBy));
     name = await validation.checkString(name, "name");
   const WorkspaceCollection = await workspace();
 
@@ -49,7 +50,7 @@ export async function getWorkspaceById(id) {
 
 export async function inviteToWorkspace(id, userId) {
     id = await validation.id(id);
-    userId = await validation.id(userId);
+    userId = await validation.id(String(userId));
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.findOne({
     _id: ObjectId(id),
@@ -90,7 +91,7 @@ export async function inviteToWorkspace(id, userId) {
 }
 
 export async function verifyInvite(userId, token) {
-    userId = await validation.id(userId);
+    userId = await validation.id(String(userId));
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.findOne({
     "members.tempToken": token,
@@ -113,7 +114,7 @@ export async function verifyInvite(userId, token) {
 }
 
 export async function getAllWorkspaceByUserId(userId) {
-    userId = await validation.id(userId);
+    userId = await validation.id(String(userId));
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.find({
     $or: [
@@ -183,7 +184,7 @@ export async function updateWorkspaceName(id, name) {
 }
 export async function updateTask(id, taskId, taskToUpdate) {
     id = await validation.id(id);
-    taskId = await validation.id(taskId);
+    taskId = await validation.id(String(taskId));
     taskToUpdate = await validation.validateTask(taskToUpdate);
   const WorkspaceCollection = await workspace();
   const updateInfo = await WorkspaceCollection.updateOne(
@@ -263,7 +264,7 @@ export async function getTask(id, userId) {
 
 export async function markTask(id, taskId, status) {
     id = await validation.id(id);
-    taskId = await validation.id(taskId);
+    taskId = await validation.id(String(taskId));
   const WorkspaceCollection = await workspace();
   const updateInfo = await WorkspaceCollection.updateOne(
     { _id: ObjectId(id), "tasks._id": ObjectId(taskId) },
