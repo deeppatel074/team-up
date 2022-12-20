@@ -19,6 +19,9 @@ import { useNavigate } from "react-router-dom";
 function SignIn() {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  // if (currentUser) {
+  //   navigate("/workspaces");
+  // }
   const handleLogin = async (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
@@ -47,6 +50,7 @@ function SignIn() {
         if (data) {
           console.log(data);
           Cookies.set("user", data._id);
+          Cookies.set("userName", data.name);
           if (data) {
             navigate("/workspaces");
           }

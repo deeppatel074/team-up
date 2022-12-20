@@ -1,5 +1,5 @@
-import firebase from 'firebase/compat/app';
-import Cookies from 'js-cookie';
+import firebase from "firebase/compat/app";
+import Cookies from "js-cookie";
 
 async function doCreateUserWithEmailAndPassword(email, password) {
   await firebase.auth().createUserWithEmailAndPassword(email, password);
@@ -22,9 +22,9 @@ async function doSignInWithEmailAndPassword(email, password) {
 
 async function doSocialSignIn(provider) {
   let socialProvider = null;
-  if (provider === 'google') {
+  if (provider === "google") {
     socialProvider = new firebase.auth.GoogleAuthProvider();
-  } else if (provider === 'facebook') {
+  } else if (provider === "facebook") {
     socialProvider = new firebase.auth.FacebookAuthProvider();
   }
   await firebase.auth().signInWithPopup(socialProvider);
@@ -41,6 +41,7 @@ async function doPasswordUpdate(password) {
 async function doSignOut() {
   await firebase.auth().signOut();
   Cookies.remove("user");
+  Cookies.remove("userName");
 }
 
 export {
@@ -50,5 +51,5 @@ export {
   doPasswordReset,
   doPasswordUpdate,
   doSignOut,
-  doChangePassword
+  doChangePassword,
 };

@@ -1,3 +1,4 @@
+import constants from "../config/constants";
 import admin from "../config/firebase-config";
 import RedisClient from "../config/redisClient";
 import * as UserModels from "../models/users";
@@ -20,9 +21,13 @@ export async function signUp(req, res) {
 
       const exisiting_user = await UserModels.findByEmail(email);
       if (exisiting_user) {
-        const updateToken = await UserModels.updateAuthToken(token, email);
+        const updateToken = await UserModels.updateAuthToken(
+          token,
+          email,
+          name
+        );
         // update token in redis
-        await RedisClient.hSet("users", token, email);
+        await RedisClient.hSet("users", token.toString(), email);
         return res.success(updateToken);
       } else {
         try {
@@ -33,7 +38,7 @@ export async function signUp(req, res) {
             name
           );
           //add token in redis
-          await RedisClient.hSet("users", token, email);
+          await RedisClient.hSet("users", token.toString(), email);
           return res.success(signinDataStore);
         } catch (e) {
           return res.error(500, e);
@@ -55,9 +60,13 @@ export async function login(req, res) {
       let email = decodedToken.email;
       const exisiting_user = await UserModels.findByEmail(email);
       if (exisiting_user) {
-        const updateToken = await UserModels.updateAuthToken(token, email);
+        const updateToken = await UserModels.updateAuthToken(
+          token,
+          email,
+          decodedToken.name
+        );
         // update token in redis
-        await RedisClient.hSet("users", token, email);
+        await RedisClient.hSet("users", token.toString(), email);
         return res.success(updateToken);
       } else {
         try {
@@ -69,7 +78,7 @@ export async function login(req, res) {
             decodedToken.name
           );
           //add token in redis
-          await RedisClient.hSet("users", token, email);
+          await RedisClient.hSet("users", token.toString(), email);
           return res.success(signinDataStore);
         } catch (e) {
           return res.error(500, e);

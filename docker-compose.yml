@@ -1,0 +1,28 @@
+version: "3"
+services:
+  ui:
+    build:
+      context: ./team-up-client
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    container_name: team-up-client
+    networks:
+      - mern-stack-net
+    depends_on:
+      - api
+    stdin_open: true
+    tty: true
+
+  api:
+    build:
+      context: ./team-up-server
+      dockerfile: Dockerfile
+    ports:
+      - 4000:4000
+    container_name: team-up-server
+    networks:
+      - mern-stack-net
+networks:
+  mern-stack-net:
+    driver: bridge

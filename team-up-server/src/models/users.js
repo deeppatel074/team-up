@@ -22,17 +22,27 @@ export async function signinData(authToken, email, name) {
   return await findByEmail(email);
 }
 
-export async function updateAuthToken(authToken, email) {
-  email = await  validation.validateEmail(email, "email");
+export async function updateAuthToken(authToken, email, name) {
+  email = await validation.validateEmail(email, "email");
   const userCollection = await users();
   const user = await userCollection.findOne({ email: email });
   if (!user) {
     throw `User not found`;
   }
+  let set = {};
+  if (user.status === constants.status.user.ACTIVE) {
+    set = { authToken: authToken };
+  } else {
+    set = {
+      authToken: authToken,
+      status: constants.status.user.ACTIVE,
+      name: name,
+    };
+  }
   const updateInfo = await userCollection.updateOne(
     { _id: user._id },
     {
-      $set: { authToken: authToken },
+      $set: set,
     }
   );
   if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
@@ -41,7 +51,7 @@ export async function updateAuthToken(authToken, email) {
 }
 
 export async function findByEmail(email) {
-  email = await validation.validateEmail(email,"email");
+  email = await validation.validateEmail(email, "email");
   const userCollection = await users();
   const user = await userCollection.findOne({ email: email });
   // if (!user) {
@@ -73,9 +83,7 @@ export async function createInviteUser(email) {
   let newUser = {
     email: email,
     authToken: undefined,
-    firstName: undefined,
-    lastName: undefined,
-    profileUrl: undefined,
+    name: undefined,
     createdDate: new Date(),
     status: constants.status.user.INACTIVE,
   };

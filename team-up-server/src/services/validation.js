@@ -47,10 +47,6 @@ export function firstNameValidation(name, str) {
 }
 export function validateDate(date) {
   date = new Date(date).toISOString();
-  let today = new Date().toISOString();
-  if (date < today) {
-    throw `Event can't be held before the current date `;
-  }
   return date;
 }
 
@@ -67,10 +63,9 @@ export function validateTask(task) {
   if (task.endDate) {
     task.endDate = validateDate(task.endDate);
   }
-  
-  return task
-}
 
+  return task;
+}
 
 export async function validateProfileBody(req, res, next) {
   try {
@@ -97,6 +92,17 @@ export async function validateTaskBody(req, res, next) {
     req.body.description = checkString(req.body.description, "Description");
     req.body.startDate = validateDate(req.body.startDate);
     req.body.endDate = validateDate(req.body.endDate);
+    return await next();
+  } catch (e) {
+    return res.error(400, e);
+  }
+}
+
+export async function validateMeetingBody(req, res, next) {
+  try {
+    req.body.title = checkString(req.body.title, "Title");
+    req.body.description = checkString(req.body.description, "Description");
+    req.body.startDate = validateDate(req.body.startDate);
     return await next();
   } catch (e) {
     return res.error(400, e);

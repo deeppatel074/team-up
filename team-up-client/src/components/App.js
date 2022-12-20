@@ -5,7 +5,7 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  // Navigate,
+  Navigate,
 } from "react-router-dom";
 import Account from "./Account";
 import Navigation from "./Navigation";
@@ -14,17 +14,18 @@ import SignUp from "./SignUp";
 import Workspaces from "./Workspaces";
 import Workspace from "./Workspace";
 import CreateWorkspace from "./CreateWorkspace";
-import { AuthProvider } from "../firebase/Auth";
+import { AuthProvider, AuthContext } from "../firebase/Auth";
 import PrivateRoute from "./PrivateRoute";
 import Tasks from "./Tasks";
 import Meetings from "./Meetings";
 import Files from "./Files";
 import TaskModel from "./TaskModel";
 import EditTaskModel from "./EditTaskModel";
-// import Cookies from "js-cookie";
+import Cookies from "js-cookie";
 // import Settings from "./Settings";
 
 function App() {
+  const user = Cookies.get("user");
   return (
     <AuthProvider>
       <Router>
@@ -56,8 +57,14 @@ function App() {
           <Route path="/workspace/:id/tasks/create" element={<PrivateRoute />}>
             <Route path="/workspace/:id/tasks/create" element={<TaskModel />} />
           </Route>
-          <Route path="/workspace/:id/tasks/edit/:taskID" element={<PrivateRoute />}>
-            <Route path="/workspace/:id/tasks/edit/:taskID" element={<EditTaskModel />} />
+          <Route
+            path="/workspace/:id/tasks/edit/:taskID"
+            element={<PrivateRoute />}
+          >
+            <Route
+              path="/workspace/:id/tasks/edit/:taskID"
+              element={<EditTaskModel />}
+            />
           </Route>
           <Route
             path="/workspace/:id/tasks/:taskId/edit"
@@ -68,8 +75,15 @@ function App() {
               element={<TaskModel />}
             />
           </Route>
-          <Route path="/login" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route path="/" element={<Navigate to="/workspaces" />} />
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/workspaces" /> : <SignIn />}
+          />
+          <Route
+            path="/signup"
+            element={user ? <Navigate to="/workspaces" /> : <SignUp />}
+          />
         </Routes>
       </Router>
     </AuthProvider>
