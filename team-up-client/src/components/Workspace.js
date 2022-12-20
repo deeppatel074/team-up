@@ -5,7 +5,7 @@ import firebase from "firebase/compat/app";
 import "../App.css";
 import WorkspaceNavBar from "./WorkspaceNavBar";
 import Cookies from "js-cookie";
-import { Button, Card, Form, ListGroup, Badge } from "react-bootstrap";
+import { Button, Card, Form, ListGroup, Badge, Alert } from "react-bootstrap";
 function Workspace() {
   const [ws, setWS] = useState(undefined);
   const [getMembers, SetMembers] = useState(undefined);
@@ -13,6 +13,8 @@ function Workspace() {
   let isDisabled = true;
   const userID = Cookies.get("user");
   const [getInvited, setInvited] = useState(false);
+  const [showAlert, setAlert] = useState(false);
+  const [showError, setError] = useState("");
 
   useEffect(() => {
     const getWS = async (id) => {
@@ -91,11 +93,14 @@ function Workspace() {
         setInvited(true);
         console.log(data);
       } else {
-        alert("Enter Valid Email");
+        // alert("Enter Valid Email");
+        setError("Enter Valid Email Id");
+        setAlert(true);
       }
     } catch (err) {
       console.log(err);
-      alert(err.response.data.error);
+      setError(err.response.data.error);
+      setAlert(true);
     }
   };
 
@@ -147,11 +152,22 @@ function Workspace() {
       <div className="row">
         <div className="col-4 sm-4" sm={4}>
           {" "}
-          <Card className="text-center card" style={{ marginTop: "20px" }}>
+          <Card className="card" style={{ marginTop: "20px" }}>
             <Card.Body style={{ marginTop: "20px" }}>
-              <Card.Title>Invite Member to Workspace</Card.Title>
+              <Card.Title className="text-center">
+                Invite Member to Workspace
+              </Card.Title>
+              <Alert
+                variant="danger"
+                show={showAlert}
+                onClose={() => setAlert(false)}
+                dismissible
+              >
+                {showError}
+              </Alert>
               <Form>
                 <Form.Group className="mb-3" controlId="email">
+                  <Form.Label>Invite User</Form.Label>
                   <Form.Control
                     type="email"
                     placeholder="Enter email of user"

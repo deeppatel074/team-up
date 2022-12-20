@@ -65,13 +65,4 @@ routes.get("/:id/tasks", verify, WorkspaceController.getALLTask);
 
 routes.get("/:id", verify, WorkspaceController.getWorkspaceById);
 
-routes.put(
-  "/:id",
-  verify,
-  validateWorkSpaceName,
-  WorkspaceController.changeWorkSpaceName
-);
-
-routes.delete("/:id", verify, WorkspaceController.deleteWorkspace);
-
 export default routes;

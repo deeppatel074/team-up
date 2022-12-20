@@ -50,7 +50,10 @@ export async function sendInvite(req, res) {
           userId
         );
       } else {
-        if (found.tempToken === null) {
+        if (
+          found.tempToken === null ||
+          found.status === constants.status.user.ACTIVE
+        ) {
           return res.error(400, "User Already Present In Workspace");
         }
         addToWorkspace = {

@@ -15,10 +15,13 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { useNavigate } from "react-router-dom";
-
+import Alert from "react-bootstrap/Alert";
 function SignIn() {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [showAlert, setAlert] = useState(false);
+  const [showError, setError] = useState("");
+  const [showSuccess, setSuccess] = useState(false);
   // if (currentUser) {
   //   navigate("/workspaces");
   // }
@@ -56,7 +59,11 @@ function SignIn() {
           }
         }
       } catch (error) {
-        alert(error);
+        setError(error.toString());
+        setSuccess(false);
+        setAlert(true);
+
+        // alert(error);
       }
     }
   };
@@ -67,11 +74,18 @@ function SignIn() {
     let email = document.getElementById("validationCustom01").value;
     if (email) {
       doPasswordReset(email);
-      alert("Password reset email was sent");
+      // alert("Password reset email was sent");
+      setError("Password reset email has been sent");
+      setSuccess(true);
+      setAlert(true);
     } else {
-      alert(
+      // alert(
+      //   "Please enter an email address below before you click the forgot password link"
+      // );
+      setError(
         "Please enter an email address below before you click the forgot password link"
       );
+      setAlert(true);
     }
   };
   // if (currentUser) {
@@ -79,11 +93,19 @@ function SignIn() {
   // }
   return (
     <div className="d-flex justify-content-center mt-4">
-      <Card className="p-3">
+      <Card className="p-3" style={{ width: "40%", marginTop: "20px" }}>
         <Card.Title className="d-flex justify-content-center">
           SIGN IN
         </Card.Title>
         <Card.Body>
+          <Alert
+            variant={showSuccess ? "success" : "danger"}
+            show={showAlert}
+            onClose={() => setAlert(false)}
+            dismissible
+          >
+            {showError}
+          </Alert>
           <Form noValidate validated={validated} onSubmit={handleLogin}>
             <Row className="mb-3">
               <Form.Group as={Col} controlId="validationCustom01">

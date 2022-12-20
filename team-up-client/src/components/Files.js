@@ -5,11 +5,21 @@ import firebase from "firebase/compat/app";
 import "../App.css";
 import axios from "axios";
 import moment from "moment";
-import { Form, Row, Col, Table, InputGroup, Button } from "react-bootstrap";
+import {
+  Form,
+  Row,
+  Col,
+  Table,
+  InputGroup,
+  Button,
+  Alert,
+} from "react-bootstrap";
 function Files() {
   const { id } = useParams();
   const [getFile, setFile] = useState(undefined);
   const [getInvited, setInvited] = useState(false);
+  const [showAlert, setAlert] = useState(false);
+  const [showError, setError] = useState("");
 
   useEffect(() => {
     setInvited(false);
@@ -56,7 +66,9 @@ function Files() {
       setInvited(true);
     } catch (err) {
       // alert(err.response.data.error);
-      alert("File not choosen");
+      // alert("File not choosen");
+      setError("Choose File to upload");
+      setAlert(true);
     }
   };
 
@@ -92,13 +104,23 @@ function Files() {
       <div>
         <Row>
           <Col md={{ span: 6, offset: 3 }}>
-            <InputGroup className="mb-3">
-              <Form.Control type="file" name="file" id="file" />
-
-              <Button variant="dark" onClick={handleUpload} id="addButton">
-                Upload
-              </Button>
-            </InputGroup>
+            <Alert
+              variant="danger"
+              show={showAlert}
+              onClose={() => setAlert(false)}
+              dismissible
+            >
+              {showError}
+            </Alert>
+            <Form.Group>
+              <Form.Label className="h6">Upload file here</Form.Label>
+              <InputGroup className="mb-3">
+                <Form.Control type="file" name="file" id="file" />
+                <Button variant="dark" onClick={handleUpload} id="addButton">
+                  Upload
+                </Button>
+              </InputGroup>
+            </Form.Group>
           </Col>
         </Row>
       </div>
