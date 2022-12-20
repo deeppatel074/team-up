@@ -294,6 +294,7 @@ export async function getTeam(id) {
             $project: {
               _id: 1,
               name: 1,
+              email: 1,
             },
           },
         ],

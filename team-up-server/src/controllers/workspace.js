@@ -4,6 +4,7 @@ import { sendMail } from "../services/mailer";
 import { ObjectId } from "mongodb";
 import * as S3 from "../services/s3";
 import constants from "../config/constants";
+import moment from "moment";
 
 export async function createWorkspace(req, res) {
   try {
@@ -376,6 +377,17 @@ export async function sendMeetingLink(req, res) {
       return res.unauthorizedUser();
     }
     let getTeam = await workSpaceModels.getTeam(id);
+    let emails = "";
+    if (getTeam.length > 0) {
+      getTeam.forEach((element) => {
+        emails = emails + element.members.id[0].email + ",";
+      });
+    }
+    sendMail("send-schedule", emails, title, {
+      workspaceName: workspace.name,
+      description,
+      startDate: moment(startDate).format("MMMM Do YYYY, h:mm:ss a"),
+    });
     return res.success({ send: true });
   } catch (e) {
     return res.error(500, e);
