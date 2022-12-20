@@ -2,8 +2,11 @@ import mongoCollections from "../config/mongoCollections";
 import constants from "../config/constants";
 import { v4 as uuidv4 } from "uuid";
 const users = mongoCollections.users;
+import * as validation from "../services/validation";
 
 export async function signinData(authToken, email, name) {
+  name = await validation.checkString(name, "name");
+  email = await validation.validateEmail(email, "email");
   const userCollection = await users();
   let newUser = {
     authToken: authToken,
@@ -20,6 +23,7 @@ export async function signinData(authToken, email, name) {
 }
 
 export async function updateAuthToken(authToken, email) {
+  email = await  validation.validateEmail(email, "email");
   const userCollection = await users();
   const user = await userCollection.findOne({ email: email });
   if (!user) {
@@ -37,6 +41,7 @@ export async function updateAuthToken(authToken, email) {
 }
 
 export async function findByEmail(email) {
+  email = await validation.validateEmail(email,"email");
   const userCollection = await users();
   const user = await userCollection.findOne({ email: email });
   // if (!user) {
@@ -63,6 +68,7 @@ export async function findByEmail(email) {
 //   };
 // }
 export async function createInviteUser(email) {
+  email = await validation.validateEmail(email, "email");
   const userCollection = await users();
   let newUser = {
     email: email,
