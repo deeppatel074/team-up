@@ -1,16 +1,52 @@
 import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
+import axios from "axios";
+import firebase from "firebase/compat/app";
 
 function Meetings() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [show, setShow] = useState(true);
   const handleClose = () => {
     setShow(false);
   };
-  const createSchedule = () => {};
+  const createSchedule = async (e) => {
+    e.preventDefault();
+    try {
+        let title = document.getElementById("title").value.trim();;
+    let description = document.getElementById("description").value.trim();;
+    let startDate = document.getElementById("startDate").value.trim();;
+    const data = {
+      title: title,
+      description: description,
+      startDate : startDate,
+      }
+      // console.log(data);
+      // console.log(typeof data);
+       const idToken = await firebase.auth().currentUser.getIdToken();
+      const header = {
+        headers: {
+          Authorization: "Bearer " + idToken,
+        },
+      };
+      const res = await axios.post(
+        `http://localhost:4000/workspace/${id}/meetings`,
+        data,
+        header
+      )
+      console.log(res);
+      // $('#StudentModal').modal('hide');
+      setShow(false);
+      navigate(`/workspace/${id}/tasks`);
+    } catch (error) {
+      alert(error.response.data.error);
+      // console.log(error);
+    }
+
+  };
   return (
     <Modal show={show}>
       <Modal.Header>

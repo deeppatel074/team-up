@@ -102,3 +102,14 @@ export async function validateTaskBody(req, res, next) {
     return res.error(400, e);
   }
 }
+
+export async function validateMeetingBody(req, res, next) {
+  try {
+     req.body.title = checkString(req.body.title, "Title");
+    req.body.description = checkString(req.body.description, "Description");
+    req.body.startDate = validateDate(req.body.startDate);
+    return await next();
+  } catch (e) {
+    return res.error(400, e);
+  }
+}
