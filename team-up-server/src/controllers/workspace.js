@@ -291,7 +291,7 @@ export async function deleteTask(req, res) {
     let id = req.params.id;
     let taskId = req.params.taskId;
     let deleted = await workSpaceModels.deleteTask(id, taskId);
-    return res.success(updated);
+    return res.success(deleted);
   } catch (e) {
     return res.error(500, e);
   }
