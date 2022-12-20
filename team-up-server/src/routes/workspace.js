@@ -26,7 +26,7 @@ routes.post(
 routes.put(
   "/task/:id/:taskId",
   verify,
-  validateTaskBody,
+  // validateTaskBody,
   WorkspaceController.updateTask
 );
 
