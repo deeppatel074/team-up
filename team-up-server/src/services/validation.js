@@ -53,6 +53,25 @@ export function validateDate(date) {
   }
   return date;
 }
+
+export function validateTask(task) {
+  if (task.title) {
+    task.title = checkString(task.title, "Title");
+  }
+  if (task.description) {
+    task.description = checkString(task.description, "Description");
+  }
+  if (task.startDate) {
+    task.startDate = validateDate(task.startDate);
+  }
+  if (task.endDate) {
+    task.endDate = validateDate(task.endDate);
+  }
+  
+  return task
+}
+
+
 export async function validateProfileBody(req, res, next) {
   try {
     req.body.firstName = firstNameValidation(req.body.firstName, "first name");
