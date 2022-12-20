@@ -380,10 +380,13 @@ export async function sendMeetingLink(req, res) {
     let emails = "";
     if (getTeam.length > 0) {
       getTeam.forEach((element) => {
-        emails = emails + element.members.id[0].email + ",";
+        if (element.members.status === constants.status.user.ACTIVE) {
+          emails = emails + element.members.id[0].email + ",";
+        }
       });
     }
     sendMail("send-schedule", emails, title, {
+      name: res.locals.name,
       workspaceName: workspace.name,
       description,
       startDate: moment(startDate).format("MMMM Do YYYY, h:mm:ss a"),
