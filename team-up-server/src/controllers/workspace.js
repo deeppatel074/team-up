@@ -88,9 +88,10 @@ export async function verifyInvite(req, res) {
     let token = req.params.token;
     try {
       let verified = await workSpaceModels.verifyInvite(userId, token);
-      return res.success(verified);
+
+      return res.sendFile(process.cwd() + "/src/views/verify.html");
     } catch (e) {
-      return res.error(400, e);
+      return res.sendFile(process.cwd() + "/src/views/unverified.html");
     }
   } catch (e) {
     return res.error(500, e);
