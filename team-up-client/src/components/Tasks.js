@@ -9,65 +9,46 @@ import Row from "react-bootstrap/Row";
 import Tab from "react-bootstrap/Tab";
 import axios from "axios";
 import firebase from "firebase/compat/app";
+import Cookies from "js-cookie";
 
 function Tasks() {
+  const userID = Cookies.get("user");
   const { id } = useParams();
   const [taskList, setTaskList] = useState(undefined);
   let allTasks, myTask, completedTask, activeTask;
+  let header;
   // const [getDate, setDate] = useState(false);
 
-  useEffect(() => {
-    const getTask = async () => {
-      try {
-        const idToken = await firebase.auth().currentUser.getIdToken();
-        const header = {
-          headers: {
-            Authorization: "Bearer " + idToken,
-          },
-        };
-        const { data } = await axios.get(
-          `http://localhost:4000/workspace/${id}/tasks`,
-          header
-        );
-        setTaskList(data);
-      } catch (e) {
-        console.log(e);
-      }
+  const getHeader = async () => {
+    const idToken = await firebase.auth().currentUser.getIdToken();
+    const header = {
+      headers: {
+        Authorization: "Bearer " + idToken,
+      },
     };
+    return header;
+  }
 
-    getTask();
-  }, []);
-  const handleComplete = async () => {
-    // try {
-    //   const idToken = await firebase.auth().currentUser.getIdToken();
-    //   const header = {
-    //     headers: {
-    //       Authorization: "Bearer " + idToken,
-    //     },
-    //   };
-    //   const { data } = await axios.patch(
-    //     `http://localhost:4000/workspace/task/${id}/${taskId}`,
-    //     {
-    //       isCompleted: true,
-    //     },
-    //     header
-    //   );
-    //   if (data) {
-    //     // setDate(true);
-    //   }
-    // } catch (e) {
-    //   console.log(e);
-    // }
-  };
+  const getData = async () => {
+    try {
+      header = await getHeader();
+      const { data } = await axios.get(
+        `http://localhost:4000/workspace/${id}/tasks`,
+        header
+      );
+      setTaskList(data);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  useEffect(() => {
+    getData();
+  }, [id]);
 
   const completeTask = async (taskData) => {
     try {
-      const idToken = await firebase.auth().currentUser.getIdToken();
-      const header = {
-        headers: {
-          Authorization: "Bearer " + idToken,
-        },
-      };
+      header = await getHeader();
       let dataa = {
         id: id,
         taskId: taskData._id,
@@ -79,15 +60,21 @@ function Tasks() {
         dataa,
         header
       );
-      const { data } = await axios.get(
-        `http://localhost:4000/workspace/${id}/tasks`,
-        header
-      );
-      setTaskList(data);
+      await getData();
     } catch (e) {
       console.log(e);
     }
   };
+
+  const deleteTask = async (taskID) => {
+    try {
+      header = await getHeader();
+      await axios.delete(`http://localhost:4000/workspace/task/${id}/${taskID}`, header);
+      await getData();
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   let eventKey = -1;
   const createTask = (taskData) => {
@@ -104,11 +91,17 @@ function Tasks() {
       );
       if (d.status !== 2) {
         complete = (
-          <Button variant="danger" onClick={() => completeTask(d)}>
+          <Button variant="warning" onClick={() => completeTask(d)}>
             Mark As Incomplete
           </Button>
         );
       }
+      let deleteBtn = null;
+      if (d.createdBy[0]._id === userID) deleteBtn = (
+        <Button variant="danger" onClick={() => deleteTask(d._id)}>
+          Delete Task
+        </Button>
+      );
       eventKey += 1;
       return (
         <div className="mt-2" key={d._id}>
@@ -126,6 +119,7 @@ function Tasks() {
                   <Button variant="secondary">Edit</Button>{" "}
                 </Link>
                 {complete}{" "}
+                {deleteBtn}{" "}
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>

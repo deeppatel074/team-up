@@ -25,7 +25,6 @@ function EditTaskModel() {
                     },
                 };
                 const { data } = await axios.get(`http://localhost:4000/workspace/task/${id}/${taskID}`, header);
-                console.log(data);
                 setTask(data);
             } catch (e) {
                 console.log(e);

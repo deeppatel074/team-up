@@ -88,9 +88,10 @@ export async function verifyInvite(req, res) {
     let token = req.params.token;
     try {
       let verified = await workSpaceModels.verifyInvite(userId, token);
-      return res.success(verified);
+
+      return res.sendFile(process.cwd() + "/src/views/verify.html");
     } catch (e) {
-      return res.error(400, e);
+      return res.sendFile(process.cwd() + "/src/views/unverified.html");
     }
   } catch (e) {
     return res.error(500, e);
@@ -326,8 +327,10 @@ export async function uploadFile(req, res) {
     if (!workspace) {
       return res.error(400, "workspace not found by this id");
     }
+    console.log(req.file);
     let originalname = req.file.originalname;
     let data = await S3.uploadFile(req.file, id);
+    console.log(data);
     let isUpdated = await workSpaceModels.uploadFile(
       id,
       data.Location,
@@ -380,10 +383,13 @@ export async function sendMeetingLink(req, res) {
     let emails = "";
     if (getTeam.length > 0) {
       getTeam.forEach((element) => {
-        emails = emails + element.members.id[0].email + ",";
+        if (element.members.status === constants.status.user.ACTIVE) {
+          emails = emails + element.members.id[0].email + ",";
+        }
       });
     }
     sendMail("send-schedule", emails, title, {
+      name: res.locals.name,
       workspaceName: workspace.name,
       description,
       startDate: moment(startDate).format("MMMM Do YYYY, h:mm:ss a"),

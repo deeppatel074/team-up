@@ -13,7 +13,7 @@ export async function verify(req, res, next) {
         const user = await UserModels.findByEmail(isUser);
         res.locals._id = user._id;
         res.locals.email = user.email;
-        if (user.firstName && user.lastName) {
+        if (user.name) {
           res.locals.name = user.name;
         }
         return await next();
