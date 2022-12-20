@@ -17,7 +17,6 @@ function Tasks() {
   const [taskList, setTaskList] = useState(undefined);
   let allTasks, myTask, completedTask, activeTask;
   let header;
-  // const [getDate, setDate] = useState(false);
 
   const getHeader = async () => {
     const idToken = await firebase.auth().currentUser.getIdToken();
@@ -45,7 +44,7 @@ function Tasks() {
 
   useEffect(() => {
     getData();
-  }, [id]);
+  }, [id, setTaskList]);
 
   const completeTask = async (taskData) => {
     try {
