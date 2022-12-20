@@ -9,11 +9,9 @@ import Row from "react-bootstrap/Row";
 import Tab from "react-bootstrap/Tab";
 import axios from "axios";
 import firebase from "firebase/compat/app";
-import Cookies from "js-cookie";
 
 function Tasks() {
   const { id } = useParams();
-  const userID = Cookies.get("user");
   const [taskList, setTaskList] = useState(undefined);
   let allTasks, myTask, completedTask, activeTask;
   // const [getDate, setDate] = useState(false);
@@ -62,7 +60,7 @@ function Tasks() {
     // }
   };
 
-  const handleInComplete = async () => {
+  const completeTask = async (taskData) => {
     try {
       const idToken = await firebase.auth().currentUser.getIdToken();
       const header = {
@@ -70,182 +68,86 @@ function Tasks() {
           Authorization: "Bearer " + idToken,
         },
       };
-      const { data } = await axios.patch(
-        `http://localhost:4000/workspace/task/${id}/`,
-        {
-          isCompleted: false,
-        },
+      let dataa = {
+        id: id,
+        taskId: taskData._id,
+        isCompleted: false,
+      };
+      if (taskData.status === 2) dataa.isCompleted = true;
+      await axios.patch(
+        `http://localhost:4000/workspace/task/${id}/${taskData._id}`,
+        dataa,
         header
       );
-      if (data) {
-        // setDate(true);
-      }
+      const { data } = await axios.get(
+        `http://localhost:4000/workspace/${id}/tasks`,
+        header
+      );
+      setTaskList(data);
     } catch (e) {
       console.log(e);
     }
   };
+
+  let eventKey = -1;
+  const createTask = (taskData) => {
+    let returnData = taskData.map((d) => {
+      let taskName = d.title;
+      let taskDesc = d.description;
+      let startDate = d.startDate.substr(0, 10);
+      let endDate = d.endDate.substr(0, 10);
+      let createdName = d.createdBy[0].name;
+      let complete = (
+        <Button variant="success" onClick={() => completeTask(d)}>
+          Mark As Completed
+        </Button>
+      );
+      if (d.status !== 2) {
+        complete = (
+          <Button variant="danger" onClick={() => completeTask(d)}>
+            Mark As Incomplete
+          </Button>
+        );
+      }
+      eventKey += 1;
+      return (
+        <div className="mt-2" key={d._id}>
+          <Accordion>
+            <Accordion.Item eventKey={eventKey}>
+              <Accordion.Header>{taskName}</Accordion.Header>
+              <Accordion.Body>{taskDesc}</Accordion.Body>
+              <Accordion.Body>
+                Start Date: {startDate} || End Date: {endDate}
+                <br />
+                Created By: {createdName}
+              </Accordion.Body>
+              <Accordion.Body>
+                <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
+                  <Button variant="secondary">Edit</Button>{" "}
+                </Link>
+                {complete}{" "}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        </div>
+      );
+    });
+    return returnData;
+  };
+
   if (taskList) {
-    let eventKey = -1;
-    allTasks = taskList.allTask.map((d) => {
-      let taskName = d.title;
-      let taskDesc = d.description;
-      let startDate = d.startDate.substr(0, 10);
-      let endDate = d.endDate.substr(0, 10);
-      let createdName = d.createdBy[0].name;
-      let status = d.status;
-      eventKey += 1;
-      return (
-        <div className="mt-2" key={d._id}>
-          <Accordion>
-            <Accordion.Item eventKey={eventKey}>
-              <Accordion.Header>{taskName}</Accordion.Header>
-              <Accordion.Body>{taskDesc}</Accordion.Body>
-              <Accordion.Body>
-                Start Date: {startDate} || End Date: {endDate}
-                <br />
-                Created By: {createdName}
-              </Accordion.Body>
-              <Accordion.Body>
-                <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
-                  <Button variant="secondary">Edit</Button>{" "}
-                </Link>
-                {status === 2 ? (
-                  <Button variant="success" onClick={handleComplete}>
-                    Mark As Completed
-                  </Button>
-                ) : (
-                  <Button variant="danger" onClick={handleInComplete}>
-                    Mark As InCompleted
-                  </Button>
-                )}
-              </Accordion.Body>
-            </Accordion.Item>
-          </Accordion>
-        </div>
-      );
-    });
-
-    myTask = taskList.myTask.map((d) => {
-      let taskName = d.title;
-      let taskDesc = d.description;
-      let startDate = d.startDate.substr(0, 10);
-      let endDate = d.endDate.substr(0, 10);
-      let createdName = d.createdBy[0].name;
-      let status = d.status;
-      eventKey += 1;
-      return (
-        <div className="mt-2" key={d._id}>
-          <Accordion>
-            <Accordion.Item eventKey={eventKey}>
-              <Accordion.Header>{taskName}</Accordion.Header>
-              <Accordion.Body>{taskDesc}</Accordion.Body>
-              <Accordion.Body>
-                Start Date: {startDate} || End Date: {endDate}
-                <br />
-                Created By: {createdName}
-              </Accordion.Body>
-              <Accordion.Body>
-                <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
-                  <Button variant="secondary">Edit</Button>{" "}
-                </Link>
-                {status === 2 ? (
-                  <Button variant="success" onClick={handleComplete}>
-                    Mark As Completed
-                  </Button>
-                ) : (
-                  <Button variant="danger" onClick={handleInComplete}>
-                    Mark As InCompleted
-                  </Button>
-                )}
-              </Accordion.Body>
-            </Accordion.Item>
-          </Accordion>
-        </div>
-      );
-    });
-
-    completedTask = taskList.completedTask.map((d) => {
-      let taskName = d.title;
-      let taskDesc = d.description;
-      let startDate = d.startDate.substr(0, 10);
-      let endDate = d.endDate.substr(0, 10);
-      let createdName = d.createdBy[0].name;
-      let status = d.status;
-      eventKey += 1;
-      return (
-        <div className="mt-2" key={d._id}>
-          <Accordion>
-            <Accordion.Item eventKey={eventKey}>
-              <Accordion.Header>{taskName}</Accordion.Header>
-              <Accordion.Body>{taskDesc}</Accordion.Body>
-              <Accordion.Body>
-                Start Date: {startDate} || End Date: {endDate}
-                <br />
-                Created By: {createdName}
-              </Accordion.Body>
-              <Accordion.Body>
-                <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
-                  <Button variant="secondary">Edit</Button>{" "}
-                </Link>
-                {status === 2 ? (
-                  <Button variant="success" onClick={handleComplete}>
-                    Mark As Completed
-                  </Button>
-                ) : (
-                  <Button variant="danger" onClick={handleInComplete}>
-                    Mark As InCompleted
-                  </Button>
-                )}
-              </Accordion.Body>
-            </Accordion.Item>
-          </Accordion>
-        </div>
-      );
-    });
-
-    activeTask = taskList.activeTask.map((d) => {
-      let taskName = d.title;
-      let taskDesc = d.description;
-      let startDate = d.startDate.substr(0, 10);
-      let endDate = d.endDate.substr(0, 10);
-      let createdName = d.createdBy[0].name;
-      let status = d.status;
-      eventKey += 1;
-      return (
-        <div className="mt-2" key={d._id}>
-          <Accordion>
-            <Accordion.Item eventKey={eventKey}>
-              <Accordion.Header>{taskName}</Accordion.Header>
-              <Accordion.Body>{taskDesc}</Accordion.Body>
-              <Accordion.Body>
-                Start Date: {startDate} || End Date: {endDate}
-                <br />
-                Created By: {createdName}
-              </Accordion.Body>
-              <Accordion.Body>
-                <Link to={`/workspace/${id}/tasks/edit/${d._id}`}>
-                  <Button variant="secondary">Edit</Button>
-                </Link>
-                {status === 2 ? (
-                  <Button variant="success" onClick={handleComplete}>
-                    Mark As Completed
-                  </Button>
-                ) : (
-                  <Button variant="danger" onClick={handleInComplete}>
-                    Mark As InCompleted
-                  </Button>
-                )}
-              </Accordion.Body>
-            </Accordion.Item>
-          </Accordion>
-        </div>
-      );
-    });
+    allTasks = createTask(taskList.allTask);
+    myTask = createTask(taskList.myTask);
+    completedTask = createTask(taskList.completedTask);
+    activeTask = createTask(taskList.activeTask);
   }
 
   return (
     <div>
       <WorkspaceNavBar data={{ id: id, active: `2` }} />
+      <div className="row text-center mt-4">
+        <h1 className="h3">Tasks</h1>
+      </div>
       <div className="mt-4">
         <Tab.Container
           id="list-group-tabs-example"
@@ -280,7 +182,7 @@ function Tasks() {
         </Tab.Container>
       </div>
       <div>
-        <Link to={`/workspace/${id}/tasks/create`}>
+        <Link to={`/workspace/${id}/meetings`}>
           <Button
             variant="dark"
             style={{
@@ -293,6 +195,7 @@ function Tasks() {
             Schedule Meeting
           </Button>
         </Link>
+
         <Link to={`/workspace/${id}/tasks/create`}>
           <Button
             variant="dark"

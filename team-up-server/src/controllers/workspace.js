@@ -2,6 +2,7 @@ import * as workSpaceModels from "../models/workspace";
 import * as UserModels from "../models/users";
 import { sendMail } from "../services/mailer";
 import { ObjectId } from "mongodb";
+import * as S3 from "../services/s3";
 import constants from "../config/constants";
 
 export async function createWorkspace(req, res) {
@@ -312,6 +313,70 @@ export async function getTeam(req, res) {
     }
     let getTeam = await workSpaceModels.getTeam(id);
     return res.success(getTeam);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function uploadFile(req, res) {
+  try {
+    let id = req.params.id;
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(400, "workspace not found by this id");
+    }
+    let originalname = req.file.originalname;
+    let data = await S3.uploadFile(req.file, id);
+    let isUpdated = await workSpaceModels.uploadFile(
+      id,
+      data.Location,
+      originalname
+    );
+    return res.success(isUpdated);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function getFiles(req, res) {
+  try {
+    let id = req.params.id;
+    let userId = res.locals._id.toString();
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(400, "workspace not found by this id");
+    }
+    const found = workspace.members.find(
+      (element) => element.id.toString() === userId.toString()
+    );
+    if (!found) {
+      return res.unauthorizedUser();
+    }
+    return res.success(workspace.sharedFiles);
+  } catch (e) {
+    return res.error(500, e);
+  }
+}
+
+export async function sendMeetingLink(req, res) {
+  try {
+    let id = req.params.id;
+    let title = req.body.title;
+    let description = req.body.description;
+    let startDate = req.body.startDate;
+    let userId = res.locals._id.toString();
+    let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(400, "workspace not found by this id");
+    }
+    const found = workspace.members.find(
+      (element) => element.id.toString() === userId.toString()
+    );
+    if (!found) {
+      return res.unauthorizedUser();
+    }
+    let getTeam = await workSpaceModels.getTeam(id);
+    return res.success({ send: true });
   } catch (e) {
     return res.error(500, e);
   }

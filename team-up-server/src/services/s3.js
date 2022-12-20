@@ -12,11 +12,11 @@ const s3 = new S3({
   secretAccessKey,
 });
 
-export async function uploadProfilePic(file, userId) {
+export async function uploadFile(file, workspaceId) {
   const uploadParams = {
     Bucket: bucketName,
     Body: file.buffer,
-    Key: "profile/" + userId.toString() + "/" + file.originalname,
+    Key: "files/" + workspaceId.toString() + "/" + file.originalname,
   };
   return await s3.upload(uploadParams).promise();
 }
