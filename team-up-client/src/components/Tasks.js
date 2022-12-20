@@ -39,6 +39,7 @@ function Tasks() {
       setTaskList(data);
     } catch (e) {
       console.log(e);
+      alert(e.response.data.error);
     }
   }
 
@@ -63,6 +64,7 @@ function Tasks() {
       await getData();
     } catch (e) {
       console.log(e);
+      alert(e.response.data.error);
     }
   };
 
@@ -73,6 +75,7 @@ function Tasks() {
       await getData();
     } catch (e) {
       console.log(e);
+      alert(e.response.data.error);
     }
   }
 

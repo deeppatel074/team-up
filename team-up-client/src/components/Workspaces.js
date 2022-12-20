@@ -27,6 +27,7 @@ function Workspaces() {
         setWS(data);
       } catch (e) {
         console.log(e);
+        alert(e.response.data.error);
       }
     };
     // if (getUser) {

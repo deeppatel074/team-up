@@ -31,6 +31,7 @@ function Workspace() {
         console.log(data);
       } catch (e) {
         console.log(e);
+        alert(e.response.data.error);
       }
     };
     getWS(id);
@@ -54,6 +55,7 @@ function Workspace() {
         console.log(data);
       } catch (e) {
         console.log(e);
+        alert(e.response.data.error);
       }
     };
     getMembersData(id);
@@ -93,6 +95,7 @@ function Workspace() {
       }
     } catch (err) {
       console.log(err);
+      alert(err.response.data.error);
     }
   };
 

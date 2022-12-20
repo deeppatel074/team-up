@@ -29,6 +29,7 @@ function Files() {
         console.log(data);
       } catch (e) {
         console.log(e);
+        alert(e.response.data.error);
       }
     };
     getMembersData(id);
@@ -54,7 +55,8 @@ function Files() {
 
       setInvited(true);
     } catch (err) {
-      console.log(err);
+      // alert(err.response.data.error);
+      alert("File not choosen");
     }
   };
 
