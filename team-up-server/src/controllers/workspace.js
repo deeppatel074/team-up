@@ -148,6 +148,10 @@ export async function createTask(req, res) {
       return res.unauthorizedUser();
     }
     let body = req.body;
+    if (!body.title || body.title.length === 0) return res.error(400, "Title cannot be empty");
+    if (!body.description || body.description.length === 0) return res.error(400, "Description cannot be empty");
+    if (!body.startDate || body.startDate.length === 0) return res.error(400, "Start Date cannot be empty");
+    if (!body.endDate || body.endDate.length === 0) return res.error(400, "End Date cannot be empty");
     let taskToInsert = {
       _id: new ObjectId(),
       title: body.title,
@@ -210,6 +214,10 @@ export async function updateTask(req, res) {
       return res.error(400, "Task not found by this id");
     }
     let body = req.body;
+    if (!body.title || body.title.length === 0) return res.error(400, "Title cannot be empty");
+    if (!body.description || body.description.length === 0) return res.error(400, "Description cannot be empty");
+    if (!body.startDate || body.startDate.length === 0) return res.error(400, "Start Date cannot be empty");
+    if (!body.endDate || body.endDate.length === 0) return res.error(400, "End Date cannot be empty");
     let taskToUpdate = {
       _id: ObjectId(taskId),
       title: body.title,
