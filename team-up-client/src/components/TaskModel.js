@@ -28,19 +28,32 @@ function TaskModel() {
         startDate: startDate,
         endDate: endDate,
       };
-      const idToken = await firebase.auth().currentUser.getIdToken();
-      const header = {
-        headers: {
-          Authorization: "Bearer " + idToken,
-        },
-      };
-      console.log(id);
-      const res = await axios.post(
-        `http://localhost:4000/workspace/task/${id}`,
-        data,
-        header
-      );
-      console.log(res);
+      data.startDate = data.startDate.substr(0, 10);
+      data.endDate = data.endDate.substr(0, 10);
+      if (data.title.length === 0) alert("Title cannot be empty");
+      else if (data.description.length === 0) alert("Description cannot be empty");
+      else if (data.startDate.length === 0) alert("Start Date cannot be empty");
+      else if (data.endDate.length === 0) alert("End Date cannot be empty");
+      else {
+        let sd = Date.parse(data.startDate);
+        let ed = Date.parse(data.endDate);
+        if (ed < sd) alert("End start can not be before start date");
+        else {
+          const idToken = await firebase.auth().currentUser.getIdToken();
+          const header = {
+            headers: {
+              Authorization: "Bearer " + idToken,
+            },
+          };
+          console.log(id);
+          const res = await axios.post(
+            `http://localhost:4000/workspace/task/${id}`,
+            data,
+            header
+          );
+          console.log(res);
+        }
+      }
     } catch (e) {
       console.log(e);
       alert(e.response.data.error);

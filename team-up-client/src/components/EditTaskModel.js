@@ -32,7 +32,7 @@ function EditTaskModel() {
         }
 
         getTask();
-    }, [])
+    }, [setTask])
 
     if (task) {
         prevTitle = task.title;
@@ -56,17 +56,24 @@ function EditTaskModel() {
                 let startDate = document.getElementById("startDate").value.trim();
                 if (startDate.length > 0) data.startDate = startDate;
                 else data.startDate = task.startDate;
+                data.startDate = data.startDate.substr(0, 10);
                 let endDate = document.getElementById("endDate").value.trim();
                 if (endDate.length > 0) data.endDate = endDate;
                 else data.endDate = task.endDate;
-                const idToken = await firebase.auth().currentUser.getIdToken();
-                const header = {
-                    headers: {
-                        Authorization: "Bearer " + idToken,
-                    },
-                };
-                const res = await axios.put(`http://localhost:4000/workspace/task/${id}/${taskID}`, data, header);
-                console.log(res);
+                data.endDate = data.endDate.substr(0, 10);
+                let sd = Date.parse(data.startDate);
+                let ed = Date.parse(data.endDate);
+                if (ed < sd) alert("End start can not be before start date");
+                else {
+                    const idToken = await firebase.auth().currentUser.getIdToken();
+                    const header = {
+                        headers: {
+                            Authorization: "Bearer " + idToken,
+                        },
+                    };
+                    const res = await axios.put(`http://localhost:4000/workspace/task/${id}/${taskID}`, data, header);
+                    console.log(res);
+                }
             } catch (e) {
                 console.log(e);
             }
