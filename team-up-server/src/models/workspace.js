@@ -11,7 +11,6 @@ export async function createWorkspaceModel(name, createdBy) {
     name: name,
     tasks: [],
     sharedFiles: [],
-    schedules: [],
     members: [
       {
         id: ObjectId(createdBy),
@@ -53,8 +52,16 @@ export async function inviteToWorkspace(id, userId) {
     throw "No workspace found by this id";
   }
   for (let elem of workspaceFound.members) {
-    if (elem.id.toString() === userId.toString()) {
+    if (
+      elem.id.toString() === userId.toString() &&
+      elem.status === constants.status.user.ACTIVE
+    ) {
       throw "User Already Exist in this workspace";
+    } else if (
+      elem.id.toString() === userId.toString() &&
+      elem.status === constants.status.user.INACTIVE
+    ) {
+      // ADD just token which user soft deleted
     }
   }
   let memberToAdd = {
@@ -101,7 +108,15 @@ export async function verifyInvite(userId, token) {
 export async function getAllWorkspaceByUserId(userId) {
   const WorkspaceCollection = await workspace();
   const workspaceFound = await WorkspaceCollection.find({
-    $or: [{ createdBy: ObjectId(userId) }, { "members.id": ObjectId(userId) }],
+    $or: [
+      { createdBy: ObjectId(userId) },
+      {
+        $and: [
+          { "members.id": ObjectId(userId) },
+          { "members.$.status": constants.status.user.ACTIVE },
+        ],
+      },
+    ],
   })
     .sort({ createdDate: -1 })
     .toArray();
@@ -134,5 +149,187 @@ export async function createTask(id, task) {
     throw "Update failed";
   return {
     added: true,
+  };
+}
+
+export async function updateWorkspaceName(id, name) {
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id) },
+    {
+      $set: {
+        name: name,
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
+  };
+}
+export async function updateTask(id, taskId, taskToUpdate) {
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id), "tasks._id": ObjectId(taskId) },
+    {
+      $set: {
+        "tasks.$": taskToUpdate,
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
+  };
+}
+
+export async function getTask(id, userId) {
+  let allTask = [],
+    myTask = [],
+    completedTask = [],
+    activeTask = [];
+  const WorkspaceCollection = await workspace();
+  const tasks = await WorkspaceCollection.aggregate([
+    {
+      $match: { _id: ObjectId(id) },
+    },
+    { $unwind: "$tasks" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "tasks.createdBy",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+            },
+          },
+        ],
+        as: "tasks.createdBy",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        task: "$tasks",
+      },
+    },
+  ]).toArray();
+
+  if (tasks && tasks.length > 0) {
+    for (let elem of tasks) {
+      allTask.push(elem.task);
+      if (elem.task.createdBy[0]._id.toString() === userId.toString()) {
+        myTask.push(elem.task);
+      }
+      if (elem.task.status === constants.status.task.COMPLETED) {
+        completedTask.push(elem.task);
+      }
+      if (elem.task.status === constants.status.task.INCOMPLETE) {
+        activeTask.push(elem.task);
+      }
+    }
+  }
+
+  return {
+    activeTask,
+    myTask,
+    completedTask,
+    allTask,
+  };
+}
+
+export async function markTask(id, taskId, status) {
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id), "tasks._id": ObjectId(taskId) },
+    {
+      $set: {
+        "tasks.$.status": status,
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
+  };
+}
+
+export async function deleteTask(id, taskId) {
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id) },
+    {
+      $pull: {
+        tasks: { _id: ObjectId(taskId) },
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
+  };
+}
+
+export async function getTeam(id) {
+  const WorkspaceCollection = await workspace();
+  const members = await WorkspaceCollection.aggregate([
+    {
+      $match: { _id: ObjectId(id) },
+    },
+    { $unwind: "$members" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "members.id",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1,
+            },
+          },
+        ],
+        as: "members.id",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        members: 1,
+      },
+    },
+  ]).toArray();
+  return members;
+}
+
+export async function uploadFile(id, fileUrl, fileName) {
+  let fileToAdd = {
+    _id: ObjectId(),
+    fileUrl,
+    fileName,
+    uploadedDate: new Date(),
+  };
+  const WorkspaceCollection = await workspace();
+  const updateInfo = await WorkspaceCollection.updateOne(
+    { _id: ObjectId(id) },
+    {
+      $push: {
+        sharedFiles: fileToAdd,
+      },
+    }
+  );
+  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+    throw "Update failed";
+  return {
+    updated: true,
   };
 }
