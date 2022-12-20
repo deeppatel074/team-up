@@ -33,7 +33,7 @@ const Navigation = () => {
   if (currentUser) {
     signup = null;
     login = null;
-    account = createNav("Account", "/account");
+    account = createNav("Account", "/accounts");
     workspaces = createNav("Workspaces", "/workspaces");
     signOut = createSignOut();
   }
