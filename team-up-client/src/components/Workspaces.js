@@ -11,33 +11,34 @@ function Workspaces() {
   const [ws, setWS] = useState(undefined);
   let navigate = useNavigate();
 
-  useEffect(() => {
-    const getWS = async () => {
-      const idToken = await firebase.auth().currentUser.getIdToken();
-      const userID = Cookies.get("user");
-      const header = {
-        headers: {
-          Authorization: "Bearer " + idToken,
-        },
-      };
-      try {
-        const { data } = await axios.get(
-          `http://localhost:4000/users/${userID}/workspace`,
-          header
-        );
-        setWS(data);
-      } catch (e) {
-        console.log(e);
-        if (e.response.status === 401) {
-          alert(e.response.data.error);
-          Cookies.remove("user");
-          Cookies.remove("userName");
-          navigate("/login");
-        } else {
-          alert(e.response.data.error);
-        }
-      }
+  const getWS = async () => {
+    const idToken = await firebase.auth().currentUser.getIdToken();
+    const userID = Cookies.get("user");
+    const header = {
+      headers: {
+        Authorization: "Bearer " + idToken,
+      },
     };
+    try {
+      const { data } = await axios.get(
+        `http://localhost:4000/users/${userID}/workspace`,
+        header
+      );
+      setWS(data);
+    } catch (e) {
+      console.log(e);
+      if (e.response.status === 401) {
+        alert(e.response.data.error);
+        Cookies.remove("user");
+        Cookies.remove("userName");
+        navigate("/login");
+      } else {
+        alert(e.response.data.error);
+      }
+    }
+  };
+
+  useEffect(() => {
     // if (getUser) {
     getWS();
     // }
@@ -60,16 +61,29 @@ function Workspaces() {
     </div>
   );
 
+  const deleteWS = async (id) => {
+    try {
+      const idToken = await firebase.auth().currentUser.getIdToken();
+      const header = {
+        headers: {
+          Authorization: "Bearer " + idToken,
+        },
+      };
+      await axios.delete(`http://localhost:4000/workspace/${id}`, header);
+      getWS();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   if (ws && ws.length !== 0) {
     const user = Cookies.get("user");
     op = ws.map((d) => {
       let role = "Member";
-      let settingsBtn = null;
       let deleteBtn = null;
       if (user === d.createdBy) {
         role = "Admin";
-        settingsBtn = <Button variant="secondary">Settings</Button>;
-        deleteBtn = <Button variant="danger">Delete</Button>;
+        deleteBtn = <Button variant="danger" onClick={() => deleteWS(d._id)}>Delete Workspace</Button>;
       }
       return (
         <div className="col" key={d._id}>
@@ -85,6 +99,7 @@ function Workspaces() {
                 </Card.Text>
                 <Card.Text className="h6 ">Role: {role}</Card.Text>
               </Link>
+              {deleteBtn}
             </Card.Body>
           </Card>
         </div>
