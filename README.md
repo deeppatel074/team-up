@@ -17,6 +17,7 @@ To start the client simply follow following steps:
 - Download docker on your machine and install the setup.
 - Open the docker application you will see your docker is running
 - Now go to the project directory on your cmd where docker-compose.yml file is present
+- Before running following cmd Make sure redis server is stopped and client and server as well
 - Run "docker-compose build --no-cache"
 - Then "docker-compose up"
 - Once docker is both client and server get stated.

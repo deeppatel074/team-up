@@ -1,7 +1,10 @@
 import * as redis from "redis";
-const RedisClient = redis.createClient({
-  url: process.env.REDIS_URI,
-});
+let conn = {};
+if (process.env.REDIS_URL) {
+  conn = { url: process.env.REDIS_URL };
+}
+const RedisClient = redis.createClient(conn);
+
 RedisClient.connect().then(() => {});
 
 export default RedisClient;
