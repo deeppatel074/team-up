@@ -30,7 +30,7 @@ To start the client simply follow following steps:
 
 In this project, we are going to develop an all-in-one workspace management application that will be able to perform the following functions:
 
-1. Invite users to the workspace to create tasks. Users can create a task and invite other users to the task. The users can also set deadlines for the tasks. Whenever a task is created or updated, all their team members would be notified via email. The team can thus work on these tasks and accomplish their target. Once the entire task is completed, the user who created the task gets notified via email.
+1. Invite users to the workspace to create tasks. Users can create a task. The users can also set deadlines for the tasks. Whenever a task is created or updated, all their team members would be notified via email. The team can thus work on these tasks and accomplish their target. Once the entire task is completed, the user who created the task gets notified via email.
 2. There will be another feature for the users to upload documents of any format which can be accessed by the team members present within that task.
 3. Finally, there would be a feature of a meeting schedule where the users can schedule a meeting. As soon as the meeting is scheduled, all members present in that task would be notified via email.
    Thus, all in all, we are creating a perfect workspace that would help the clients easily segregate their tasks and complete their targets before the deadline.
