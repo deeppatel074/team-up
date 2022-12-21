@@ -31,7 +31,7 @@ export async function sendInvite(req, res) {
       userId = createdInviteUser._id;
     } else {
       userId = isUser._id;
-      userName = isUser.firstName + " " + isUser.lastName;
+      userName = isUser.name;
     }
     try {
       // find in workspace if find send send token again else create
@@ -50,7 +50,10 @@ export async function sendInvite(req, res) {
           userId
         );
       } else {
-        if (found.tempToken === null) {
+        if (
+          found.tempToken === null ||
+          found.status === constants.status.user.ACTIVE
+        ) {
           return res.error(400, "User Already Present In Workspace");
         }
         addToWorkspace = {
@@ -102,7 +105,7 @@ export async function deleteWorkspace(req, res) {
     let id = req.params.id;
     let workspace = await workSpaceModels.getWorkspaceById(id);
     if (!workspace) {
-      throw "workspace not found by this id";
+      return res.error(404, "No Work Space Found with this id");
     }
     if (workspace.createdBy.toString() !== res.locals._id.toString()) {
       return res.unauthorizedUser();
@@ -119,7 +122,7 @@ export async function getWorkspaceById(req, res) {
     let id = req.params.id;
     let workspace = await workSpaceModels.getWorkspaceById(id);
     if (!workspace) {
-      throw "workspace not found by this id";
+      return res.error(404, "No Work Space Found with this id");
     }
     const found = workspace.members.find(
       (element) => element.id.toString() === res.locals._id.toString()
@@ -129,7 +132,7 @@ export async function getWorkspaceById(req, res) {
     }
     return res.success(workspace);
   } catch (e) {
-    return res.error(500, e);
+    return res.error(404, e);
   }
 }
 
@@ -148,10 +151,14 @@ export async function createTask(req, res) {
       return res.unauthorizedUser();
     }
     let body = req.body;
-    if (!body.title || body.title.length === 0) return res.error(400, "Title cannot be empty");
-    if (!body.description || body.description.length === 0) return res.error(400, "Description cannot be empty");
-    if (!body.startDate || body.startDate.length === 0) return res.error(400, "Start Date cannot be empty");
-    if (!body.endDate || body.endDate.length === 0) return res.error(400, "End Date cannot be empty");
+    if (!body.title || body.title.length === 0)
+      return res.error(400, "Title cannot be empty");
+    if (!body.description || body.description.length === 0)
+      return res.error(400, "Description cannot be empty");
+    if (!body.startDate || body.startDate.length === 0)
+      return res.error(400, "Start Date cannot be empty");
+    if (!body.endDate || body.endDate.length === 0)
+      return res.error(400, "End Date cannot be empty");
     let taskToInsert = {
       _id: new ObjectId(),
       title: body.title,
@@ -199,7 +206,7 @@ export async function updateTask(req, res) {
     let taskId = req.params.taskId;
     let workspace = await workSpaceModels.getWorkspaceById(id);
     if (!workspace) {
-      return res.error(400, "workspace not found by this id");
+      return res.error(404, "workspace not found by this id");
     }
     const found = workspace.members.find(
       (element) => element.id.toString() === userId.toString()
@@ -211,13 +218,17 @@ export async function updateTask(req, res) {
       (element) => element._id.toString() === taskId.toString()
     );
     if (!getTask) {
-      return res.error(400, "Task not found by this id");
+      return res.error(404, "Task not found by this id");
     }
     let body = req.body;
-    if (!body.title || body.title.length === 0) return res.error(400, "Title cannot be empty");
-    if (!body.description || body.description.length === 0) return res.error(400, "Description cannot be empty");
-    if (!body.startDate || body.startDate.length === 0) return res.error(400, "Start Date cannot be empty");
-    if (!body.endDate || body.endDate.length === 0) return res.error(400, "End Date cannot be empty");
+    if (!body.title || body.title.length === 0)
+      return res.error(400, "Title cannot be empty");
+    if (!body.description || body.description.length === 0)
+      return res.error(400, "Description cannot be empty");
+    if (!body.startDate || body.startDate.length === 0)
+      return res.error(400, "Start Date cannot be empty");
+    if (!body.endDate || body.endDate.length === 0)
+      return res.error(400, "End Date cannot be empty");
     let taskToUpdate = {
       _id: ObjectId(taskId),
       title: body.title,
@@ -246,7 +257,7 @@ export async function getALLTask(req, res) {
     let userId = res.locals._id.toString();
     let workspace = await workSpaceModels.getWorkspaceById(id);
     if (!workspace) {
-      return res.error(400, "workspace not found by this id");
+      return res.error(404, "workspace not found by this id");
     }
     const found = workspace.members.find(
       (element) => element.id.toString() === userId.toString()
@@ -258,7 +269,7 @@ export async function getALLTask(req, res) {
     let tasks = await workSpaceModels.getTask(id, userId);
     return res.success(tasks);
   } catch (e) {
-    return res.error(500, e);
+    return res.error(404, e);
   }
 }
 
@@ -267,6 +278,9 @@ export async function getTaskById(req, res) {
     let id = req.params.id;
     let taskId = req.params.taskId;
     let workspace = await workSpaceModels.getWorkspaceById(id);
+    if (!workspace) {
+      return res.error(404, "workspace not found by this id");
+    }
     const task = workspace.tasks.find(
       (element) => element._id.toString() === taskId.toString()
     );
@@ -290,6 +304,26 @@ export async function markTask(req, res) {
       status = constants.status.task.COMPLETED;
     }
     let updated = await workSpaceModels.markTask(id, taskId, status);
+    if (status === constants.status.task.COMPLETED) {
+      let workspace = await workSpaceModels.getWorkspaceById(id);
+      if (!workspace) {
+        return res.error(404, "workspace not found by this id");
+      }
+      const task = workspace.tasks.find(
+        (element) => element._id.toString() === taskId.toString()
+      );
+      if (!task) {
+        return res.error(404, "Task Not found");
+      }
+      let user = await UserModels.findById(task.createdBy);
+      let mailerData = {
+        tName: user.name,
+        title: task.title,
+        cName: res.locals.name,
+        wName: workspace.name,
+      };
+      sendMail("task-complete", user.email, "Task Completed", mailerData);
+    }
     return res.success(updated);
   } catch (e) {
     return res.error(500, e);
@@ -313,7 +347,7 @@ export async function getTeam(req, res) {
     let userId = res.locals._id.toString();
     let workspace = await workSpaceModels.getWorkspaceById(id);
     if (!workspace) {
-      return res.error(400, "workspace not found by this id");
+      return res.error(404, "workspace not found by this id");
     }
     const found = workspace.members.find(
       (element) => element.id.toString() === userId.toString()
@@ -324,7 +358,7 @@ export async function getTeam(req, res) {
     let getTeam = await workSpaceModels.getTeam(id);
     return res.success(getTeam);
   } catch (e) {
-    return res.error(500, e);
+    return res.error(404, e);
   }
 }
 
@@ -356,7 +390,7 @@ export async function getFiles(req, res) {
     let userId = res.locals._id.toString();
     let workspace = await workSpaceModels.getWorkspaceById(id);
     if (!workspace) {
-      return res.error(400, "workspace not found by this id");
+      return res.error(404, "workspace not found by this id");
     }
     const found = workspace.members.find(
       (element) => element.id.toString() === userId.toString()
@@ -366,7 +400,7 @@ export async function getFiles(req, res) {
     }
     return res.success(workspace.sharedFiles);
   } catch (e) {
-    return res.error(500, e);
+    return res.error(404, e);
   }
 }
 
@@ -379,7 +413,7 @@ export async function sendMeetingLink(req, res) {
     let userId = res.locals._id.toString();
     let workspace = await workSpaceModels.getWorkspaceById(id);
     if (!workspace) {
-      return res.error(400, "workspace not found by this id");
+      return res.error(404, "workspace not found by this id");
     }
     const found = workspace.members.find(
       (element) => element.id.toString() === userId.toString()

@@ -1,18 +1,22 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import firebase from "firebase/compat/app";
 import "../App.css";
 import WorkspaceNavBar from "./WorkspaceNavBar";
 import Cookies from "js-cookie";
-import { Button, Card, Form, ListGroup, Badge } from "react-bootstrap";
+import { Button, Card, Form, ListGroup, Badge, Alert } from "react-bootstrap";
 function Workspace() {
   const [ws, setWS] = useState(undefined);
   const [getMembers, SetMembers] = useState(undefined);
   const { id } = useParams();
+  let navigate = useNavigate();
   let isDisabled = true;
   const userID = Cookies.get("user");
   const [getInvited, setInvited] = useState(false);
+  const [showAlert, setAlert] = useState(false);
+  const [showError, setError] = useState("");
+  const [getFNF, setFNF] = useState(false);
 
   useEffect(() => {
     const getWS = async (id) => {
@@ -30,8 +34,16 @@ function Workspace() {
         setWS(data);
         console.log(data);
       } catch (e) {
-        console.log(e);
-        alert(e.response.data.error);
+        if (e.response.status === 401) {
+          alert(e.response.data.error);
+          Cookies.remove("user");
+          Cookies.remove("userName");
+          navigate("/login");
+        } else if (e.response.status === 404) {
+          setFNF(true);
+        } else {
+          alert(e.response.data.error);
+        }
       }
     };
     getWS(id);
@@ -54,8 +66,11 @@ function Workspace() {
         SetMembers(data);
         console.log(data);
       } catch (e) {
-        console.log(e);
-        alert(e.response.data.error);
+        if (e.response.status === 404) {
+          setFNF(true);
+        } else {
+          alert(e.response.data.error);
+        }
       }
     };
     getMembersData(id);
@@ -91,11 +106,14 @@ function Workspace() {
         setInvited(true);
         console.log(data);
       } else {
-        alert("Enter Valid Email");
+        // alert("Enter Valid Email");
+        setError("Enter Valid Email Id");
+        setAlert(true);
       }
     } catch (err) {
       console.log(err);
-      alert(err.response.data.error);
+      setError(err.response.data.error);
+      setAlert(true);
     }
   };
 
@@ -127,6 +145,13 @@ function Workspace() {
     );
   };
   let memeberList = undefined;
+  if (getFNF) {
+    return (
+      <div className="row text-center mt-4">
+        <h1 style={{ color: "red" }}> Error 404: Not Found</h1>
+      </div>
+    );
+  }
   if (getMembers) {
     console.log(getMembers);
     memeberList = (
@@ -145,13 +170,24 @@ function Workspace() {
         <h1 className="h3">{name}</h1>
       </div>
       <div className="row">
-        <div className="col-4 sm-4" sm={4}>
+        <div className="col-4 sm-4">
           {" "}
-          <Card className="text-center card" style={{ marginTop: "20px" }}>
+          <Card className="card" style={{ marginTop: "20px" }}>
             <Card.Body style={{ marginTop: "20px" }}>
-              <Card.Title>Invite Member to Workspace</Card.Title>
+              <Card.Title className="text-center">
+                Invite Member to Workspace
+              </Card.Title>
+              <Alert
+                variant="danger"
+                show={showAlert}
+                onClose={() => setAlert(false)}
+                dismissible
+              >
+                {showError}
+              </Alert>
               <Form>
                 <Form.Group className="mb-3" controlId="email">
+                  <Form.Label>Invite User</Form.Label>
                   <Form.Control
                     type="email"
                     placeholder="Enter email of user"
@@ -169,7 +205,7 @@ function Workspace() {
             </Card.Body>
           </Card>
         </div>
-        <div className="col-8 sm-8" sm={8}>
+        <div className="col-8 sm-8">
           <Card className="text-center card" style={{ marginTop: "20px" }}>
             <Card.Body>
               <Card.Title>Members</Card.Title>

@@ -3,12 +3,13 @@ import axios from "axios";
 import firebase from "firebase/compat/app";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 
 function Workspaces() {
   const [ws, setWS] = useState(undefined);
+  let navigate = useNavigate();
 
   useEffect(() => {
     const getWS = async () => {
@@ -27,7 +28,14 @@ function Workspaces() {
         setWS(data);
       } catch (e) {
         console.log(e);
-        alert(e.response.data.error);
+        if (e.response.status === 401) {
+          alert(e.response.data.error);
+          Cookies.remove("user");
+          Cookies.remove("userName");
+          navigate("/login");
+        } else {
+          alert(e.response.data.error);
+        }
       }
     };
     // if (getUser) {

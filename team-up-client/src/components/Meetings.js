@@ -16,17 +16,17 @@ function Meetings() {
   const createSchedule = async (e) => {
     e.preventDefault();
     try {
-        let title = document.getElementById("title").value.trim();;
-    let description = document.getElementById("description").value.trim();;
-    let startDate = document.getElementById("startDate").value.trim();;
-    const data = {
-      title: title,
-      description: description,
-      startDate : startDate,
-      }
+      let title = document.getElementById("title").value.trim();
+      let description = document.getElementById("description").value.trim();
+      let startDate = document.getElementById("startDate").value.trim();
+      const data = {
+        title: title,
+        description: description,
+        startDate: startDate,
+      };
       // console.log(data);
       // console.log(typeof data);
-       const idToken = await firebase.auth().currentUser.getIdToken();
+      const idToken = await firebase.auth().currentUser.getIdToken();
       const header = {
         headers: {
           Authorization: "Bearer " + idToken,
@@ -36,7 +36,7 @@ function Meetings() {
         `http://localhost:4000/workspace/${id}/meetings`,
         data,
         header
-      )
+      );
       console.log(res);
       // $('#StudentModal').modal('hide');
       setShow(false);
@@ -45,7 +45,6 @@ function Meetings() {
       alert(error.response.data.error);
       // console.log(error);
     }
-
   };
   return (
     <Modal show={show}>
@@ -54,7 +53,7 @@ function Meetings() {
       </Modal.Header>
       <Modal.Body>
         <Form>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Form.Label>Title</Form.Label>
             <Form.Control
               type="text"
@@ -64,7 +63,7 @@ function Meetings() {
               autoFocus
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Group className="mb-3">
             <Form.Label>Description</Form.Label>
             <Form.Control
               as="textarea"
@@ -75,7 +74,7 @@ function Meetings() {
               rows={3}
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Group className="mb-3">
             <Form.Label>Start Date</Form.Label>
             <Form.Control
               type="datetime-local"

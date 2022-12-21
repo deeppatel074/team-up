@@ -4,10 +4,10 @@ import * as UserModels from "../models/users";
 export async function verify(req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    console.log("Token found", token);
+    // console.log("Token found", token);
     if (token) {
       let isExist = await RedisClient.hExists("users", token.toString());
-      console.log(isExist);
+      // console.log(isExist);
       if (isExist) {
         console.log(`Verifying token...`);
         let isUser = await RedisClient.hGet("users", token.toString());

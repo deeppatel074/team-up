@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import WorkspaceNavBar from "./WorkspaceNavBar";
 import firebase from "firebase/compat/app";
 import "../App.css";
 import axios from "axios";
 import moment from "moment";
-import { Form, Row, Col, Table, InputGroup, Button } from "react-bootstrap";
+import Cookies from "js-cookie";
+import {
+  Form,
+  Row,
+  Col,
+  Table,
+  InputGroup,
+  Button,
+  Alert,
+} from "react-bootstrap";
 function Files() {
   const { id } = useParams();
   const [getFile, setFile] = useState(undefined);
   const [getInvited, setInvited] = useState(false);
-
+  const [showAlert, setAlert] = useState(false);
+  const [showError, setError] = useState("");
+  const [getFNF, setFNF] = useState(false);
+  let navigate = useNavigate();
   useEffect(() => {
     setInvited(false);
     const getMembersData = async (id) => {
@@ -28,8 +40,18 @@ function Files() {
         setFile(data);
         console.log(data);
       } catch (e) {
-        console.log(e);
-        alert(e.response.data.error);
+        if (e.response.status === 401) {
+          alert(e.response.data.error);
+          Cookies.remove("user");
+          Cookies.remove("userName");
+          navigate("/login");
+        } else {
+          if (e.response.status === 404) {
+            setFNF(true);
+          } else {
+            alert(e.response.data.error);
+          }
+        }
       }
     };
     getMembersData(id);
@@ -56,7 +78,9 @@ function Files() {
       setInvited(true);
     } catch (err) {
       // alert(err.response.data.error);
-      alert("File not choosen");
+      // alert("File not choosen");
+      setError("Choose File to upload");
+      setAlert(true);
     }
   };
 
@@ -73,7 +97,13 @@ function Files() {
       </tr>
     );
   };
-
+  if (getFNF) {
+    return (
+      <div className="row text-center mt-4">
+        <h1 style={{ color: "red" }}> Error 404: Not Found</h1>
+      </div>
+    );
+  }
   if (getFile) {
     tableBody = (
       <tbody>
@@ -92,13 +122,23 @@ function Files() {
       <div>
         <Row>
           <Col md={{ span: 6, offset: 3 }}>
-            <InputGroup className="mb-3">
-              <Form.Control type="file" name="file" id="file" />
-
-              <Button variant="dark" onClick={handleUpload} id="addButton">
-                Upload
-              </Button>
-            </InputGroup>
+            <Alert
+              variant="danger"
+              show={showAlert}
+              onClose={() => setAlert(false)}
+              dismissible
+            >
+              {showError}
+            </Alert>
+            <Form.Group>
+              <Form.Label className="h6">Upload file here</Form.Label>
+              <InputGroup className="mb-3">
+                <Form.Control type="file" name="file" id="file" />
+                <Button variant="dark" onClick={handleUpload} id="addButton">
+                  Upload
+                </Button>
+              </InputGroup>
+            </Form.Group>
           </Col>
         </Row>
       </div>

@@ -6,11 +6,13 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
-
+import Alert from "react-bootstrap/Alert";
+import Cookies from "js-cookie";
 function CreateWorkspace() {
   let navigate = useNavigate();
   const [show, setShow] = useState(true);
-
+  const [showAlert, setAlert] = useState(false);
+  const [showError, setError] = useState("");
   const handleClose = () => setShow(false);
 
   const createWs = async () => {
@@ -20,8 +22,11 @@ function CreateWorkspace() {
       const param = {
         name: wpName,
       };
-      if (wpName.length < 5) alert("Name must be at least 5 letters long");
-      else {
+      if (wpName.length < 5) {
+        // alert("Name must be at least 5 letters long");
+        setError("Name must be at least 5 letters long");
+        setAlert(true);
+      } else {
         const idToken = await firebase.auth().currentUser.getIdToken();
         const header = {
           headers: {
@@ -39,7 +44,18 @@ function CreateWorkspace() {
       }
     } catch (err) {
       console.log(err);
-      alert(err.response.data.error);
+      if (err.response.status === 401) {
+        alert(err.response.data.error);
+        Cookies.remove("user");
+        Cookies.remove("userName");
+        navigate("/login");
+      }
+      setError(err.response.data.error);
+      setAlert(true);
+      // alerts = (
+
+      // );
+      // alert(err.response.data.error);
     }
   };
   return (
@@ -48,6 +64,14 @@ function CreateWorkspace() {
         <Modal.Title>Create New Workspace</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <Alert
+          variant="danger"
+          show={showAlert}
+          onClose={() => setAlert(false)}
+          dismissible
+        >
+          {showError}
+        </Alert>
         <Form>
           <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
             <Form.Label>Workspace Name</Form.Label>

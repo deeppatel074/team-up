@@ -3,6 +3,7 @@ import constants from "../config/constants";
 import { v4 as uuidv4 } from "uuid";
 const users = mongoCollections.users;
 import * as validation from "../services/validation";
+import { ObjectId } from "mongodb";
 
 export async function signinData(authToken, email, name) {
   name = await validation.checkString(name, "name");
@@ -54,6 +55,16 @@ export async function findByEmail(email) {
   email = await validation.validateEmail(email, "email");
   const userCollection = await users();
   const user = await userCollection.findOne({ email: email });
+  // if (!user) {
+  //   throw `User not found`;
+  // }
+  return user;
+}
+
+export async function findById(id) {
+  id = await validation.id(id.toString());
+  const userCollection = await users();
+  const user = await userCollection.findOne({ _id: ObjectId(id) });
   // if (!user) {
   //   throw `User not found`;
   // }

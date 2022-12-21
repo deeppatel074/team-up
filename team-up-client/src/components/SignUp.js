@@ -11,13 +11,19 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
+import Alert from "react-bootstrap/Alert";
+
 function SignUp() {
   const { currentUser } = useContext(AuthContext);
+  const user = Cookies.get("user");
+
   const navigate = useNavigate();
-  // if (currentUser) {
+  // if (user) {
   //   navigate("/workspaces");
   // }
+  const [showAlert, setAlert] = useState(false);
+  const [showError, setError] = useState("");
   const [pwMatch, setPwMatch] = useState("");
   const [validated, setValidated] = useState(false);
   const handleSignUp = async (e) => {
@@ -58,30 +64,45 @@ function SignUp() {
             navigate("/workspaces");
           }
         } catch (e) {
-          alert(e.message);
+          // alert(e.message);
+          setError(e.message);
+          setAlert(true);
         }
       } catch (error) {
-        alert(error.message);
+        // alert(error.message);
+        setError(error.message);
+        setAlert(true);
       }
     }
   };
   // if (currentUser) {
   //   return <Navigate to="/workspace" />;
   // }
+  if (user) {
+    return <Navigate to="/workspaces" />;
+  }
   return (
     <div className="d-flex justify-content-center mt-4">
-      <Card className="p-3">
+      <Card className="p-3" style={{ width: "40%", marginTop: "20px" }}>
         <Card.Title className="d-flex justify-content-center">
           SIGN UP
         </Card.Title>
         <Card.Body>
+          <Alert
+            variant="danger"
+            show={showAlert}
+            onClose={() => setAlert(false)}
+            dismissible
+          >
+            {showError}
+          </Alert>
           <Form noValidate validated={validated} onSubmit={handleSignUp}>
             <Row className="mb-3">
               <Form.Group as={Col} controlId="validationCustom00">
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                   required
-                  type="name"
+                  type="text"
                   name="name"
                   placeholder="Enter your name"
                 />
