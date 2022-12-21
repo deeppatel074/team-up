@@ -11,12 +11,17 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import Alert from "react-bootstrap/Alert";
 
 function SignUp() {
   const { currentUser } = useContext(AuthContext);
+  const user = Cookies.get("user");
+
   const navigate = useNavigate();
+  // if (user) {
+  //   navigate("/workspaces");
+  // }
   const [showAlert, setAlert] = useState(false);
   const [showError, setError] = useState("");
   const [pwMatch, setPwMatch] = useState("");
@@ -73,6 +78,9 @@ function SignUp() {
   // if (currentUser) {
   //   return <Navigate to="/workspace" />;
   // }
+  if (user) {
+    return <Navigate to="/workspaces" />;
+  }
   return (
     <div className="d-flex justify-content-center mt-4">
       <Card className="p-3" style={{ width: "40%", marginTop: "20px" }}>

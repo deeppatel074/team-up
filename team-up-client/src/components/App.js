@@ -25,7 +25,6 @@ import Cookies from "js-cookie";
 // import Settings from "./Settings";
 
 function App() {
-  const user = Cookies.get("user");
   return (
     <AuthProvider>
       <Router>
@@ -76,14 +75,8 @@ function App() {
             />
           </Route>
           <Route path="/" element={<Navigate to="/workspaces" />} />
-          <Route
-            path="/login"
-            element={user ? <Navigate to="/workspaces" /> : <SignIn />}
-          />
-          <Route
-            path="/signup"
-            element={user ? <Navigate to="/workspaces" /> : <SignUp />}
-          />
+          <Route path="/login" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -157,7 +157,7 @@ function Workspace() {
         <h1 className="h3">{name}</h1>
       </div>
       <div className="row">
-        <div className="col-4 sm-4" sm={4}>
+        <div className="col-4 sm-4">
           {" "}
           <Card className="card" style={{ marginTop: "20px" }}>
             <Card.Body style={{ marginTop: "20px" }}>
@@ -192,7 +192,7 @@ function Workspace() {
             </Card.Body>
           </Card>
         </div>
-        <div className="col-8 sm-8" sm={8}>
+        <div className="col-8 sm-8">
           <Card className="text-center card" style={{ marginTop: "20px" }}>
             <Card.Body>
               <Card.Title>Members</Card.Title>
