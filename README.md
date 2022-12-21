@@ -26,6 +26,12 @@ To start the client simply follow following steps:
 
 - Go to .env file you will find mongoSrv there copy that and past it on to Compass in new connection then connect
 
+# Test or seed users Using email and password
+
+1. email: deeppatel@test.co password: Teamup123
+2. email: suhaschuvvis@test.co password: Teamup123
+3. email: suhaschuvvis@test.co password: Teamup123
+
 ## Project Description:
 
 In this project, we are going to develop an all-in-one workspace management application that will be able to perform the following functions:
