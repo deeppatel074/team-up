@@ -304,6 +304,26 @@ export async function markTask(req, res) {
       status = constants.status.task.COMPLETED;
     }
     let updated = await workSpaceModels.markTask(id, taskId, status);
+    if (status === constants.status.task.COMPLETED) {
+      let workspace = await workSpaceModels.getWorkspaceById(id);
+      if (!workspace) {
+        return res.error(404, "workspace not found by this id");
+      }
+      const task = workspace.tasks.find(
+        (element) => element._id.toString() === taskId.toString()
+      );
+      if (!task) {
+        return res.error(404, "Task Not found");
+      }
+      let user = await UserModels.findById(task.createdBy);
+      let mailerData = {
+        tName: user.name,
+        title: task.title,
+        cName: res.locals.name,
+        wName: workspace.name,
+      };
+      sendMail("task-complete", user.email, "Task Completed", mailerData);
+    }
     return res.success(updated);
   } catch (e) {
     return res.error(500, e);
