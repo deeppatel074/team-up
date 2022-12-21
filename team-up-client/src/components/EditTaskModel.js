@@ -126,7 +126,6 @@ function EditTaskModel() {
             <Form.Control
               type="text"
               placeholder={prevTitle}
-              value={prevTitle}
               id="title"
               name="title"
             />
@@ -138,27 +137,16 @@ function EditTaskModel() {
               placeholder={prevDesc}
               id="description"
               name="description"
-              value={prevDesc}
               rows={3}
             />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Start Date</Form.Label>
-            <Form.Control
-              type="date"
-              id="startDate"
-              name="startDate"
-              value={prevSDate}
-            />
+            <Form.Label>Start Date : {prevSDate}</Form.Label>
+            <Form.Control type="date" id="startDate" name="startDate" />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>End Date</Form.Label>
-            <Form.Control
-              type="date"
-              id="endDate"
-              name="endDate"
-              value={prevEDate}
-            />
+            <Form.Label>End Date : {prevEDate}</Form.Label>
+            <Form.Control type="date" id="endDate" name="endDate" />
           </Form.Group>
         </Form>
       </Modal.Body>

@@ -39,9 +39,9 @@ async function doPasswordUpdate(password) {
 }
 
 async function doSignOut() {
-  await firebase.auth().signOut();
   Cookies.remove("user");
   Cookies.remove("userName");
+  await firebase.auth().signOut();
 }
 
 export {

@@ -31,7 +31,7 @@ export async function sendInvite(req, res) {
       userId = createdInviteUser._id;
     } else {
       userId = isUser._id;
-      userName = isUser.firstName + " " + isUser.lastName;
+      userName = isUser.name;
     }
     try {
       // find in workspace if find send send token again else create

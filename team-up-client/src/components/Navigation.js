@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../firebase/Auth";
 import { doSignOut } from "../firebase/FirebaseFunctions";
 import "../App.css";
@@ -7,24 +7,30 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 
-const createSignOut = () => {
-  return (
-    <Link className="nav-link link" to="/login" onClick={doSignOut}>
-      Sign Out
-    </Link>
-  );
-};
-
-const createNav = (Name, dest) => {
-  return (
-    <Link className="nav-link link" to={dest}>
-      {Name}
-    </Link>
-  );
-};
-
 const Navigation = () => {
   const { currentUser } = useContext(AuthContext);
+  let navigate = useNavigate();
+  const handleLogout = async () => {
+    await doSignOut();
+    navigate("/login");
+  };
+
+  const createSignOut = () => {
+    return (
+      <Link className="nav-link link" onClick={handleLogout}>
+        Sign Out
+      </Link>
+    );
+  };
+
+  const createNav = (Name, dest) => {
+    return (
+      <Link className="nav-link link" to={dest}>
+        {Name}
+      </Link>
+    );
+  };
+
   let signup = createNav("Sign Up", "/signup");
   let login = createNav("Log In", "/login");
   let account = null;

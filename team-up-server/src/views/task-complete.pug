@@ -1,0 +1,31 @@
+doctype html
+html
+    head
+        meta(name="viewport" content="width=device-width")
+        meta(http-equiv="Content-Type" content="text/html; charset=UTF-8")
+        title
+            block subject
+
+    body(style="font-family: sans-serif; color: #5d5d5d;")
+        row
+            columns &nbsp;
+            columns(class="container")
+                div(class="content" style=" background: #f9f9f9; padding: 40px;")
+                    span(class="preheader")
+                        block preview
+                    row(class="main")
+                        columns(class="wrapper")
+                            row
+                                columns
+                                    p
+                                    block content
+                                        h1 Hello #{tName},  
+                                        p Task title #{title} has completed by #{cName} on workspace #{wName}, 
+                                        br
+                            row
+                                columns
+                                    | Cheers,
+                                    br
+                                    | Team Up.
+
+            columns &nbsp;
