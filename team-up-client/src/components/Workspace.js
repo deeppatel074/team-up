@@ -79,7 +79,7 @@ function Workspace() {
   let name = "Not Found";
   if (ws) {
     name = ws.name;
-    if (ws.createdBy.toString() === userID.toString()) {
+    if (ws.createdBy.toString() === userID) {
       isDisabled = false;
     }
   }
