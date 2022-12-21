@@ -16,6 +16,7 @@ function Workspace() {
   const [getInvited, setInvited] = useState(false);
   const [showAlert, setAlert] = useState(false);
   const [showError, setError] = useState("");
+  const [getFNF, setFNF] = useState(false);
 
   useEffect(() => {
     const getWS = async (id) => {
@@ -38,6 +39,8 @@ function Workspace() {
           Cookies.remove("user");
           Cookies.remove("userName");
           navigate("/login");
+        } else if (e.response.status === 404) {
+          setFNF(true);
         } else {
           alert(e.response.data.error);
         }
@@ -63,8 +66,11 @@ function Workspace() {
         SetMembers(data);
         console.log(data);
       } catch (e) {
-        console.log(e);
-        alert(e.response.data.error);
+        if (e.response.status === 404) {
+          setFNF(true);
+        } else {
+          alert(e.response.data.error);
+        }
       }
     };
     getMembersData(id);
@@ -139,6 +145,13 @@ function Workspace() {
     );
   };
   let memeberList = undefined;
+  if (getFNF) {
+    return (
+      <div className="row text-center mt-4">
+        <h1 style={{ color: "red" }}> Error 404: Not Found</h1>
+      </div>
+    );
+  }
   if (getMembers) {
     console.log(getMembers);
     memeberList = (

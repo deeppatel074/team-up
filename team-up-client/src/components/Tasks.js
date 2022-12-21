@@ -16,6 +16,7 @@ function Tasks() {
   const { id } = useParams();
   let navigate = useNavigate();
   const [taskList, setTaskList] = useState(undefined);
+  const [getFNF, setFNF] = useState(false);
   let allTasks, myTask, completedTask, activeTask;
   let header;
 
@@ -38,8 +39,11 @@ function Tasks() {
       );
       setTaskList(data);
     } catch (e) {
-      console.log(e);
-      alert(e.response.data.error);
+      if (e.response.status === 404) {
+        setFNF(true);
+      } else {
+        alert(e.response.data.error);
+      }
     }
   };
 
@@ -140,6 +144,14 @@ function Tasks() {
     });
     return returnData;
   };
+
+  if (getFNF) {
+    return (
+      <div className="row text-center mt-4">
+        <h1 style={{ color: "red" }}> Error 404: Not Found</h1>
+      </div>
+    );
+  }
 
   if (taskList) {
     allTasks = createTask(taskList.allTask);

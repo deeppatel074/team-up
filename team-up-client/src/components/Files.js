@@ -21,6 +21,7 @@ function Files() {
   const [getInvited, setInvited] = useState(false);
   const [showAlert, setAlert] = useState(false);
   const [showError, setError] = useState("");
+  const [getFNF, setFNF] = useState(false);
   let navigate = useNavigate();
   useEffect(() => {
     setInvited(false);
@@ -45,7 +46,11 @@ function Files() {
           Cookies.remove("userName");
           navigate("/login");
         } else {
-          alert(e.response.data.error);
+          if (e.response.status === 404) {
+            setFNF(true);
+          } else {
+            alert(e.response.data.error);
+          }
         }
       }
     };
@@ -92,7 +97,13 @@ function Files() {
       </tr>
     );
   };
-
+  if (getFNF) {
+    return (
+      <div className="row text-center mt-4">
+        <h1 style={{ color: "red" }}> Error 404: Not Found</h1>
+      </div>
+    );
+  }
   if (getFile) {
     tableBody = (
       <tbody>
