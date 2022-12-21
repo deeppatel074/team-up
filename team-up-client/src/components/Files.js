@@ -87,7 +87,7 @@ function Files() {
   let tableBody = undefined;
   const buildTable = (file) => {
     return (
-      <tr>
+      <tr key={file._id}>
         <td>
           <a href={file.fileUrl} download>
             {file.fileName}
