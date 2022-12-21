@@ -80,7 +80,6 @@ function CreateWorkspace() {
               placeholder="Enter workspace name"
               id="wsName"
               name="wsName"
-              autoFocus
             />
           </Form.Group>
         </Form>
